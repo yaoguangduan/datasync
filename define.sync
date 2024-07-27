@@ -1,0 +1,88 @@
+def go_out ./pbgen
+def proto_out ./pb
+
+enum VipLevel 
+    Level1          0                   
+    Level2          1                   
+    Level3          2                   
+
+enum ColorType 
+    Red            0                   
+    Blue           1                   
+    Green          2                   
+
+message IntroDetail
+    string          address          1         
+    int32           money            2         
+
+message ActionInfo[act] 
+    string          act             1         
+    string          detail          2         
+    int64           time            3         
+
+message PayRecord[timestamp] 
+    int64           timestamp          1         
+    string          classic            2         
+
+message Person[name] 
+    int32                    age               1//年龄         
+    VipLevel                 vipLevel          2                 
+    string                   name              3                 
+    map[ActionInfo]          actions           4                 
+    list[string]             favor             5                 
+    list[ColorType]          loveSeq           6                 
+    bool                     isGirl            7                 
+    IntroDetail              detail            8                 
+    bytes                    data              9                 
+
+message TestI32Map[id] 
+    int32           id                1         
+    string          addition          2         
+
+message TestU32Map[id] 
+    uint32          id                1         
+    string          addition          2         
+
+message TestI64Map[id] 
+    int64           id                1         
+    string          addition          2         
+
+message TestU64Map[id] 
+    uint64          id                1         
+    string          addition          2         
+
+message TestBoolMap[id] 
+    bool            id                1         
+    string          addition          2         
+
+message TestStringMap[id] 
+    string          id                1         
+    string          addition          2         
+
+message Test[id] 
+    int32                       id               1          
+    uint32                      u32              2          
+    int64                       i64              3          
+    uint64                      u64              4          
+    bool                        b                5          
+    ColorType                   e                6          
+    string                      str              7          
+    Person                      obj              22         
+    list[int32]                 i32Arr           8          
+    list[uint32]                u32Arr           9          
+    list[int64]                 i64Arr           10         
+    list[uint64]                u64Arr           11         
+    list[bool]                  boolArr          12         
+    list[ColorType]             enumArr          13         
+    list[string]                strArr           14         
+    map[TestI32Map]             i32Map           15         
+    map[TestU32Map]             u32Map           16         
+    map[TestI64Map]             i64Map           17         
+    map[TestU64Map]             u64Map           18         
+    map[TestBoolMap]            boolMap          19         
+    map[TestStringMap]          strMap           21         
+    float                       f32              23         
+    double                      f64              24         
+    list[float]                 f32Arr           25         
+    list[double]                f64Arr           26         
+

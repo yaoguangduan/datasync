@@ -1,0 +1,3 @@
+go build  -o gsync.exe .\cmd\
+.\gsync.exe -src pb -proto-out pbs -go-out pbgen
+.\protoc.exe  --go_out=pbgen --proto_path=pb  pb\*.proto
