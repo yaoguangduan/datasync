@@ -56,3 +56,7 @@ func (g *FileWriter) Save(join string) {
 		panic(err)
 	}
 }
+
+func (g *FileWriter) String() string {
+	return g.sb.String()
+}

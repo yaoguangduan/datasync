@@ -2,7 +2,7 @@ package gogen
 
 import (
 	"fmt"
-	"gpsync/internal/gen"
+	"github.com/yaoguangduan/datasync/internal/gen"
 )
 
 func generateFieldOperateFunc(fw *gen.FileWriter, sfd gen.SyncDef, msg gen.SyncMsgOrEnumDef) {

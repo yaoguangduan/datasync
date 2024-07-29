@@ -1,7 +1,7 @@
 package gogen
 
 import (
-	"gpsync/internal/gen"
+	"github.com/yaoguangduan/datasync/internal/gen"
 )
 
 func generateFuncInterfaces(fw *gen.FileWriter, msg gen.SyncMsgOrEnumDef) {

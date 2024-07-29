@@ -3,8 +3,8 @@ package syncdep
 import (
 	"fmt"
 	"github.com/samber/lo"
+	"github.com/yaoguangduan/datasync/internal/gen"
 	"google.golang.org/protobuf/encoding/protowire"
-	"gpsync/internal/gen"
 	"math"
 	"unsafe"
 )

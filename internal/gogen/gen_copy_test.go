@@ -2,7 +2,7 @@ package gogen
 
 import (
 	"github.com/stretchr/testify/assert"
-	"gpsync/pbgen"
+	"github.com/yaoguangduan/datasync/pbgen"
 	"testing"
 )
 

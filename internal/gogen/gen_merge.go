@@ -2,9 +2,9 @@ package gogen
 
 import (
 	"github.com/samber/lo"
-	"gpsync/internal/gen"
-	"gpsync/internal/protogen"
-	"gpsync/syncdep"
+	"github.com/yaoguangduan/datasync/internal/gen"
+	"github.com/yaoguangduan/datasync/internal/proto_file_gen"
+	"github.com/yaoguangduan/datasync/syncdep"
 )
 
 func generateFuncMergeDirtyToPb(fw *gen.FileWriter, msg gen.SyncMsgOrEnumDef) {
@@ -33,10 +33,10 @@ func generateFuncMergeDirtyToPb(fw *gen.FileWriter, msg gen.SyncMsgOrEnumDef) {
 			fw.PLF("count := x.%s.Len()", field.Name)
 			fw.PLF("r.%s = make([]%s,0)", field.CapitalName, lo.If(field.ListType != "enum", gen.FloatConvert(field.ListType)).Else(field.MsgOrEnumRef.Name))
 			fw.PLF("if count > 0 {")
-			fw.PLF("r.%s = false", protogen.ProtoClearedName(field.CapitalName))
+			fw.PLF("r.%s = false", proto_file_gen.ProtoClearedName(field.CapitalName))
 			fw.PLF("r.%s = append(r.%s,x.%s.ValueView()...)", field.CapitalName, field.CapitalName, field.Name)
 			fw.PLF("} else {")
-			fw.PLF("r.%s = true", protogen.ProtoClearedName(field.CapitalName))
+			fw.PLF("r.%s = true", proto_file_gen.ProtoClearedName(field.CapitalName))
 			fw.PLF("}")
 			fw.PL("}")
 		}
@@ -75,13 +75,13 @@ func generateFuncMergeDirtyToPb(fw *gen.FileWriter, msg gen.SyncMsgOrEnumDef) {
 			fw.PLF("}")
 			fw.PLF("}")
 
-			fw.PLF("if r.%s == nil && len(x.%s.Deleted()) > 0{", protogen.ProtoDeletedName(field.CapitalName), field.Name)
-			fw.PLF("r.%s = make([]%s,0)", protogen.ProtoDeletedName(field.CapitalName), field.MapKeyKind)
+			fw.PLF("if r.%s == nil && len(x.%s.Deleted()) > 0{", proto_file_gen.ProtoDeletedName(field.CapitalName), field.Name)
+			fw.PLF("r.%s = make([]%s,0)", proto_file_gen.ProtoDeletedName(field.CapitalName), field.MapKeyKind)
 			fw.PLF("}")
 
 			fw.PLF("for k := range x.%s.Deleted() {", field.Name)
-			fw.PLF("if !slices.Contains(r.%s,k) {", protogen.ProtoDeletedName(field.CapitalName))
-			fw.PLF("r.%s = append(r.%s,k)", protogen.ProtoDeletedName(field.CapitalName), protogen.ProtoDeletedName(field.CapitalName))
+			fw.PLF("if !slices.Contains(r.%s,k) {", proto_file_gen.ProtoDeletedName(field.CapitalName))
+			fw.PLF("r.%s = append(r.%s,k)", proto_file_gen.ProtoDeletedName(field.CapitalName), proto_file_gen.ProtoDeletedName(field.CapitalName))
 			fw.PLF("}")
 			fw.PLF("}")
 
@@ -311,7 +311,7 @@ func generateFuncMergeDirtyFromPb(fw *gen.FileWriter, msg gen.SyncMsgOrEnumDef) 
 			fw.PLF("}")
 		}
 		if field.IsList() {
-			fw.PLF("if len(r.%s) > 0 || r.%s {", field.CapitalName, protogen.ProtoClearedName(field.CapitalName))
+			fw.PLF("if len(r.%s) > 0 || r.%s {", field.CapitalName, proto_file_gen.ProtoClearedName(field.CapitalName))
 			fw.PLF("x.Get%s().Clear()", field.CapitalName)
 			fw.PLF("x.%s.AddAll(r.%s)", field.Name, field.CapitalName)
 			fw.PLF("}")
@@ -323,7 +323,7 @@ func generateFuncMergeDirtyFromPb(fw *gen.FileWriter, msg gen.SyncMsgOrEnumDef) 
 		}
 		if field.IsMap() {
 			fw.PLF("if x.%s != nil {", field.Name)
-			fw.PLF("x.Get%s().RemoveAll(r.%s)", field.CapitalName, protogen.ProtoDeletedName(field.CapitalName))
+			fw.PLF("x.Get%s().RemoveAll(r.%s)", field.CapitalName, proto_file_gen.ProtoDeletedName(field.CapitalName))
 			fw.PLF("}")
 
 			fw.PLF("for k,v := range r.%s {", field.CapitalName)

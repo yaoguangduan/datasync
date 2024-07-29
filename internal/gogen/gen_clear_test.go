@@ -2,8 +2,8 @@ package gogen
 
 import (
 	"github.com/samber/lo"
+	"github.com/yaoguangduan/datasync/pbgen"
 	"google.golang.org/protobuf/proto"
-	"gpsync/pbgen"
 	"testing"
 )
 

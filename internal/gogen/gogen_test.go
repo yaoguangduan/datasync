@@ -2,9 +2,9 @@ package gogen
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/yaoguangduan/datasync/pbgen"
 	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/proto"
-	"gpsync/pbgen"
 	"testing"
 )
 

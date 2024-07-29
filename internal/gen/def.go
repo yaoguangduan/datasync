@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/samber/lo"
+	"google.golang.org/protobuf/compiler/protogen"
 	"os"
 	"path/filepath"
 	"slices"
@@ -18,10 +19,11 @@ type MetaKVDef struct {
 }
 
 type SyncDef struct {
-	Name     string
-	Anno     string
-	Defs     map[string]string
-	Messages []SyncMsgOrEnumDef
+	Name       string
+	Anno       string
+	Defs       map[string]string
+	Messages   []SyncMsgOrEnumDef
+	PluginFile *protogen.File
 }
 
 func NewSyncDef() *SyncDef {
@@ -202,7 +204,7 @@ func (def *SyncDef) GetMsgOrEnumByName(s string) *SyncMsgOrEnumDef {
 		return item.Name == s
 	})
 	if !find {
-		panic(fmt.Sprintf("missing message or enum define:%s", s))
+		return nil
 	}
 	return &msgOrEnum
 }
@@ -268,7 +270,6 @@ type SyncEnumFieldDef struct {
 }
 
 type SyncMsgOrEnumDef struct {
-	Pkg        string
 	Name       string
 	SyncName   string
 	IsEnum     bool

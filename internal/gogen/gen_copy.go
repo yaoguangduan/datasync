@@ -1,7 +1,7 @@
 package gogen
 
 import (
-	"gpsync/internal/gen"
+	"github.com/yaoguangduan/datasync/internal/gen"
 )
 
 func generateFuncCopyFromPb(fw *gen.FileWriter, msg gen.SyncMsgOrEnumDef) {

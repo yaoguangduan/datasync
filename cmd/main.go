@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gpsync/internal"
+	"github.com/yaoguangduan/datasync/internal"
 	"os"
 )
 
