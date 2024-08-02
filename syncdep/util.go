@@ -155,42 +155,42 @@ func MustParseVarintArr[T interface{}](p *ProtoRawField) []T {
 		case int32:
 			val, n := protowire.ConsumeVarint(buf)
 			if n < 0 {
-				panic(fmt.Sprintf("parse varint arr arr error:%d", n))
+				panic(fmt.Sprintf("parse varint arr error:%d", n))
 			}
 			buf = buf[n:]
 			ret = append(ret, any(int32(val)).(T))
 		case uint32:
 			val, n := protowire.ConsumeVarint(buf)
 			if n < 0 {
-				panic(fmt.Sprintf("parse varint arr arr error:%d", n))
+				panic(fmt.Sprintf("parse varint arr error:%d", n))
 			}
 			buf = buf[n:]
 			ret = append(ret, any(uint32(val)).(T))
 		case int64:
 			val, n := protowire.ConsumeVarint(buf)
 			if n < 0 {
-				panic(fmt.Sprintf("parse varint arr arr error:%d", n))
+				panic(fmt.Sprintf("parse varint arr error:%d", n))
 			}
 			buf = buf[n:]
 			ret = append(ret, any(int64(val)).(T))
 		case uint64:
 			val, n := protowire.ConsumeVarint(buf)
 			if n < 0 {
-				panic(fmt.Sprintf("parse varint arr arr error:%d", n))
+				panic(fmt.Sprintf("parse varint arr error:%d", n))
 			}
 			buf = buf[n:]
 			ret = append(ret, any(val).(T))
 		case bool:
 			val, n := protowire.ConsumeVarint(buf)
 			if n < 0 {
-				panic(fmt.Sprintf("parse varint arr arr error:%d", n))
+				panic(fmt.Sprintf("parse varint arr error:%d", n))
 			}
 			buf = buf[n:]
 			ret = append(ret, any(val > 0).(T))
 		default:
 			val, n := protowire.ConsumeVarint(buf)
 			if n < 0 {
-				panic(fmt.Sprintf("parse varint arr arr error:%d", n))
+				panic(fmt.Sprintf("parse varint arr error:%d", n))
 			}
 			buf = buf[n:]
 			ret = append(ret, any(int32(val)).(T))

@@ -92,7 +92,7 @@ func generateFuncMergeDirtyToPb(fw *gen.FileWriter, msg gen.SyncMsgOrEnumDef) {
 }
 
 func generateFuncMergeDirtyToBytes(fw *gen.FileWriter, msg gen.SyncMsgOrEnumDef) {
-	fw.PLF("func (x *%s) MergeDirtyToBytes()[]byte {", msg.SyncName)
+	fw.PLF("func (x *%s) MergeDirtyToBytes() []byte {", msg.SyncName)
 	fw.PLF("var buf []byte")
 	for _, field := range msg.MsgFields {
 		fw.PLF("if x.is%sDirty() {", field.CapitalName)
@@ -158,7 +158,7 @@ func generateFuncMergeDirtyToBytes(fw *gen.FileWriter, msg gen.SyncMsgOrEnumDef)
 					fw.PLF("packedBuf = syncdep.AppendFieldValue(packedBuf, v)")
 				}
 				fw.PLF("}")
-				fw.PLF("buf = protowire.AppendTag(buf, %d, %v)", field.Number, syncdep.FieldTypeToWireType(field))
+				fw.PLF("buf = protowire.AppendTag(buf, %d, %v)", field.ProtoDelNumber(), syncdep.FieldTypeToWireType(field))
 				fw.PLF("buf = protowire.AppendBytes(buf, packedBuf)")
 			}
 

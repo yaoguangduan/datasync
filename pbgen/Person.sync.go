@@ -351,6 +351,7 @@ func (x *PersonSync) MergeDirtyToPb(r *Person) {
 			}
 		}
 	}
+
 	if x.isFavorDirty() {
 		count := x.favor.Len()
 		r.Favor = make([]string, 0)

@@ -1,3 +1,8 @@
 go build  -o gsync.exe .\cmd\
-.\gsync.exe -src pb -proto-out pbs -go-out pbgen
-.\protoc.exe  --go_out=pbgen --proto_path=pb  pb\*.proto
+gpsync.exe define.sync
+
+
+v2:
+
+go build -o protoc-gen-gpsync.exe .\protoc-gen-gpsync\
+.\protoc.exe --gpsync_out=./pbgenv2 --go_out=./pbgenv2 --proto_path=pbv2 --proto_path=pb --proto_path=pbv2/google/protobuf --proto_path=./pbv2 .\pbv2\Person.proto

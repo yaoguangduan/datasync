@@ -1,0 +1,44 @@
+{{/* gotype:github.com/yaoguangduan/datasync/internalv2/def.GoStructInfo*/}}
+
+// struct  {{.StructName}} get set methods start
+{{range .Fields}}
+func (x *{{$.StructName}}) Get{{title .FieldName}}() {{.FieldType}} {
+	{{if eq .Kind "message"}}
+	if x.{{.FieldName}} == nil {
+		x.{{.FieldName}} = New{{- .Struct.StructName -}}()
+		x.{{.FieldName}}.SetParent(x,{{.FieldNumber}})
+    }
+	{{else if eq .Kind "list"}}
+	if x.{{.FieldName}} == nil {
+		x.{{.FieldName}} = syncdep.NewArraySync[{{.ListType}}]()
+		x.{{.FieldName}}.SetParent(x,{{.FieldNumber}})
+	}
+	{{else if eq .Kind "map"}}
+	if x.{{.FieldName}} == nil {
+		x.{{.FieldName}} = syncdep.NewMapSync[{{.MapKeyType}},*{{.Struct.StructName}}]()
+		x.{{.FieldName}}.SetParent(x,{{.FieldNumber}})
+	}
+	{{end}}
+	return x.{{.FieldName}}
+}
+
+{{if and (not (eq .Kind "list")) (not (eq .Kind "map"))}}
+func (x *{{$.StructName}}) Set{{title .FieldName}}(v {{.FieldType}}) *{{$.StructName}}{
+	{{if and (not (eq .Kind "message")) (not (eq .Kind "[]byte"))}}
+	if x.{{.FieldName}} == v {
+		return x
+	}
+	{{else if eq .Kind "message"}}
+	v.SetParent(x,{{.FieldNumber}})
+	if x.{{.FieldName}} != nil {
+		x.{{.FieldName}}.SetParent(nil, -1)
+	}
+	{{end}}
+
+	x.{{.FieldName}} = v
+	x.set{{- title .FieldName -}}Dirty(true,false)
+	return x
+}
+{{end}}
+
+{{end}}
