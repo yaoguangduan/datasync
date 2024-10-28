@@ -1,5 +1,5 @@
-go build  -o gsync.exe .\cmd\
-gpsync.exe define.sync
+go build  -o protosync.exe .\cmd\
+protosync.exe define.sync
 
 
 v1:
