@@ -19,11 +19,11 @@ func (x *{{.StructName}}) CopyFromPb(r *{{.MessageName}}) *{{.StructName}}{
     {{range .Fields}}
 
 	{{if eq .Kind "map"}}
-    for k,v := range r.{{.OriFieldName}} {
+    for _,v := range r.{{.OriFieldName}} {
         if v != nil {
             vv := New{{.Struct.StructName}}()
             vv.CopyFromPb(v)
-            x.Get{{title .FieldName}}().Put(k,vv)
+            x.Get{{title .FieldName}}().Put(vv)
         }
     }
 	{{else if eq .Kind "list"}}

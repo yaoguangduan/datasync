@@ -2,7 +2,7 @@ go build  -o gsync.exe .\cmd\
 gpsync.exe define.sync
 
 
-v2:
+v1:
 
 go build -o protoc-gen-gpsync.exe .\protoc-gen-gpsync\
-.\protoc.exe --gpsync_out=./pbgenv2 --go_out=./pbgenv2 --proto_path=pbv2 --proto_path=pb --proto_path=pbv2/google/protobuf --proto_path=./pbv2 .\pbv2\test.proto
+.\protoc.exe --gpsync_out=./pbgenv1 --go_out=./pbgenv1 --proto_path=pbv1 --proto_path=pb --proto_path=pbv1/google/protobuf --proto_path=./pbv1 .\pbv1\test.proto

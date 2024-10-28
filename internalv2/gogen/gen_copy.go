@@ -32,7 +32,7 @@ func generateFuncCopyFromPb(fw *gen.FileWriter, msg gen.SyncMsgOrEnumDef) {
 			fw.PLF("if v != nil {")
 			fw.PLF("vv := New%s()", field.MsgOrEnumRef.SyncName)
 			fw.PLF("vv.CopyFromPb(v)")
-			fw.PLF("x.Get%s().Put(v.Get%s(),vv)", field.CapitalName, field.MsgOrEnumRef.MsgKey.CapitalName)
+			fw.PLF("x.Get%s().Put(vv)", field.CapitalName)
 			fw.PLF("}")
 			fw.PLF("}")
 		}

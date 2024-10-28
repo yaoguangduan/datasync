@@ -307,42 +307,42 @@ func (x *TestSync) CopyFromPb(r *Test) *TestSync {
 		if v != nil {
 			vv := NewTestI32MapSync()
 			vv.CopyFromPb(v)
-			x.GetI32Map().Put(v.GetId(), vv)
+			x.GetI32Map().Put(vv)
 		}
 	}
 	for _, v := range r.U32Map {
 		if v != nil {
 			vv := NewTestU32MapSync()
 			vv.CopyFromPb(v)
-			x.GetU32Map().Put(v.GetId(), vv)
+			x.GetU32Map().Put(vv)
 		}
 	}
 	for _, v := range r.I64Map {
 		if v != nil {
 			vv := NewTestI64MapSync()
 			vv.CopyFromPb(v)
-			x.GetI64Map().Put(v.GetId(), vv)
+			x.GetI64Map().Put(vv)
 		}
 	}
 	for _, v := range r.U64Map {
 		if v != nil {
 			vv := NewTestU64MapSync()
 			vv.CopyFromPb(v)
-			x.GetU64Map().Put(v.GetId(), vv)
+			x.GetU64Map().Put(vv)
 		}
 	}
 	for _, v := range r.BoolMap {
 		if v != nil {
 			vv := NewTestBoolMapSync()
 			vv.CopyFromPb(v)
-			x.GetBoolMap().Put(v.GetId(), vv)
+			x.GetBoolMap().Put(vv)
 		}
 	}
 	for _, v := range r.StrMap {
 		if v != nil {
 			vv := NewTestStringMapSync()
 			vv.CopyFromPb(v)
-			x.GetStrMap().Put(v.GetId(), vv)
+			x.GetStrMap().Put(vv)
 		}
 	}
 	if r.F32 != nil {

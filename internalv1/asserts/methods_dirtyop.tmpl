@@ -105,7 +105,7 @@ func (x *{{.StructName}}) MergeDirtyFromPb(r *{{.MessageName}}) *{{.StructName}}
         if tmp == nil {
             tmp = New{{.Struct.StructName}}()
             tmp.MergeDirtyFromPb(v)
-            x.Get{{title .FieldName}}().Put(k, tmp)
+            x.Get{{title .FieldName}}().Put(tmp)
         } else {
             tmp.MergeDirtyFromPb(v)
         }
@@ -248,7 +248,7 @@ func (x *{{.StructName}}) MergeDirtyFromBytes(buf []byte) {
             tmp = New{{.Struct.StructName}}()
         }
         tmp.MergeDirtyFromBytes(bys)
-        x.Get{{title .FieldName}}().Put(k,tmp)
+        x.Get{{title .FieldName}}().Put(tmp)
         {{else if eq .Kind "list"}}
             {{if eq .ListType "string"}}
             if !{{.FieldName}}Cleared {

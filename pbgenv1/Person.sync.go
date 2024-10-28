@@ -1,4 +1,4 @@
-package pbgenv2
+package pbgenv1
 
 import "github.com/yaoguangduan/protosync/syncdep"
 
@@ -237,11 +237,11 @@ func (x *PersonSync) CopyFromPb(r *Person) *PersonSync {
 		x.SetName(*r.Name)
 	}
 
-	for k, v := range r.Actions {
+	for _, v := range r.Actions {
 		if v != nil {
 			vv := NewActionInfoSync()
 			vv.CopyFromPb(v)
-			x.GetActions().Put(k, vv)
+			x.GetActions().Put(vv)
 		}
 	}
 
@@ -560,7 +560,7 @@ func (x *PersonSync) MergeDirtyFromPb(r *Person) *PersonSync {
 		if tmp == nil {
 			tmp = NewActionInfoSync()
 			tmp.MergeDirtyFromPb(v)
-			x.GetActions().Put(k, tmp)
+			x.GetActions().Put(tmp)
 		} else {
 			tmp.MergeDirtyFromPb(v)
 		}
@@ -683,7 +683,7 @@ func (x *PersonSync) MergeDirtyFromBytes(buf []byte) {
 				tmp = NewActionInfoSync()
 			}
 			tmp.MergeDirtyFromBytes(bys)
-			x.GetActions().Put(k, tmp)
+			x.GetActions().Put(tmp)
 
 		case 5:
 

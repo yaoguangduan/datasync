@@ -107,7 +107,7 @@ func (x *PersonSync) CopyFromPb(r *Person) *PersonSync {
 		if v != nil {
 			vv := NewActionInfoSync()
 			vv.CopyFromPb(v)
-			x.GetActions().Put(v.GetAct(), vv)
+			x.GetActions().Put(vv)
 		}
 	}
 	if r.Favor != nil {

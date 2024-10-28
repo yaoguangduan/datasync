@@ -1,4 +1,4 @@
-package pbgenv2
+package pbgenv1
 
 import "github.com/yaoguangduan/protosync/syncdep"
 
@@ -585,51 +585,51 @@ func (x *TestSync) CopyFromPb(r *Test) *TestSync {
 		x.GetStrArr().AddAll(r.StrArr)
 	}
 
-	for k, v := range r.I32Map {
+	for _, v := range r.I32Map {
 		if v != nil {
 			vv := NewTestI32MapSync()
 			vv.CopyFromPb(v)
-			x.GetI32Map().Put(k, vv)
+			x.GetI32Map().Put(vv)
 		}
 	}
 
-	for k, v := range r.U32Map {
+	for _, v := range r.U32Map {
 		if v != nil {
 			vv := NewTestU32MapSync()
 			vv.CopyFromPb(v)
-			x.GetU32Map().Put(k, vv)
+			x.GetU32Map().Put(vv)
 		}
 	}
 
-	for k, v := range r.I64Map {
+	for _, v := range r.I64Map {
 		if v != nil {
 			vv := NewTestI64MapSync()
 			vv.CopyFromPb(v)
-			x.GetI64Map().Put(k, vv)
+			x.GetI64Map().Put(vv)
 		}
 	}
 
-	for k, v := range r.U64Map {
+	for _, v := range r.U64Map {
 		if v != nil {
 			vv := NewTestU64MapSync()
 			vv.CopyFromPb(v)
-			x.GetU64Map().Put(k, vv)
+			x.GetU64Map().Put(vv)
 		}
 	}
 
-	for k, v := range r.BoolMap {
+	for _, v := range r.BoolMap {
 		if v != nil {
 			vv := NewTestBoolMapSync()
 			vv.CopyFromPb(v)
-			x.GetBoolMap().Put(k, vv)
+			x.GetBoolMap().Put(vv)
 		}
 	}
 
-	for k, v := range r.StrMap {
+	for _, v := range r.StrMap {
 		if v != nil {
 			vv := NewTestStringMapSync()
 			vv.CopyFromPb(v)
-			x.GetStrMap().Put(k, vv)
+			x.GetStrMap().Put(vv)
 		}
 	}
 
@@ -1557,7 +1557,7 @@ func (x *TestSync) MergeDirtyFromPb(r *Test) *TestSync {
 		if tmp == nil {
 			tmp = NewTestI32MapSync()
 			tmp.MergeDirtyFromPb(v)
-			x.GetI32Map().Put(k, tmp)
+			x.GetI32Map().Put(tmp)
 		} else {
 			tmp.MergeDirtyFromPb(v)
 		}
@@ -1571,7 +1571,7 @@ func (x *TestSync) MergeDirtyFromPb(r *Test) *TestSync {
 		if tmp == nil {
 			tmp = NewTestU32MapSync()
 			tmp.MergeDirtyFromPb(v)
-			x.GetU32Map().Put(k, tmp)
+			x.GetU32Map().Put(tmp)
 		} else {
 			tmp.MergeDirtyFromPb(v)
 		}
@@ -1585,7 +1585,7 @@ func (x *TestSync) MergeDirtyFromPb(r *Test) *TestSync {
 		if tmp == nil {
 			tmp = NewTestI64MapSync()
 			tmp.MergeDirtyFromPb(v)
-			x.GetI64Map().Put(k, tmp)
+			x.GetI64Map().Put(tmp)
 		} else {
 			tmp.MergeDirtyFromPb(v)
 		}
@@ -1599,7 +1599,7 @@ func (x *TestSync) MergeDirtyFromPb(r *Test) *TestSync {
 		if tmp == nil {
 			tmp = NewTestU64MapSync()
 			tmp.MergeDirtyFromPb(v)
-			x.GetU64Map().Put(k, tmp)
+			x.GetU64Map().Put(tmp)
 		} else {
 			tmp.MergeDirtyFromPb(v)
 		}
@@ -1613,7 +1613,7 @@ func (x *TestSync) MergeDirtyFromPb(r *Test) *TestSync {
 		if tmp == nil {
 			tmp = NewTestBoolMapSync()
 			tmp.MergeDirtyFromPb(v)
-			x.GetBoolMap().Put(k, tmp)
+			x.GetBoolMap().Put(tmp)
 		} else {
 			tmp.MergeDirtyFromPb(v)
 		}
@@ -1627,7 +1627,7 @@ func (x *TestSync) MergeDirtyFromPb(r *Test) *TestSync {
 		if tmp == nil {
 			tmp = NewTestStringMapSync()
 			tmp.MergeDirtyFromPb(v)
-			x.GetStrMap().Put(k, tmp)
+			x.GetStrMap().Put(tmp)
 		} else {
 			tmp.MergeDirtyFromPb(v)
 		}
@@ -1958,7 +1958,7 @@ func (x *TestSync) MergeDirtyFromBytes(buf []byte) {
 				tmp = NewTestI32MapSync()
 			}
 			tmp.MergeDirtyFromBytes(bys)
-			x.GetI32Map().Put(k, tmp)
+			x.GetI32Map().Put(tmp)
 
 		case 16:
 
@@ -1968,7 +1968,7 @@ func (x *TestSync) MergeDirtyFromBytes(buf []byte) {
 				tmp = NewTestU32MapSync()
 			}
 			tmp.MergeDirtyFromBytes(bys)
-			x.GetU32Map().Put(k, tmp)
+			x.GetU32Map().Put(tmp)
 
 		case 17:
 
@@ -1978,7 +1978,7 @@ func (x *TestSync) MergeDirtyFromBytes(buf []byte) {
 				tmp = NewTestI64MapSync()
 			}
 			tmp.MergeDirtyFromBytes(bys)
-			x.GetI64Map().Put(k, tmp)
+			x.GetI64Map().Put(tmp)
 
 		case 18:
 
@@ -1988,7 +1988,7 @@ func (x *TestSync) MergeDirtyFromBytes(buf []byte) {
 				tmp = NewTestU64MapSync()
 			}
 			tmp.MergeDirtyFromBytes(bys)
-			x.GetU64Map().Put(k, tmp)
+			x.GetU64Map().Put(tmp)
 
 		case 19:
 
@@ -1998,7 +1998,7 @@ func (x *TestSync) MergeDirtyFromBytes(buf []byte) {
 				tmp = NewTestBoolMapSync()
 			}
 			tmp.MergeDirtyFromBytes(bys)
-			x.GetBoolMap().Put(k, tmp)
+			x.GetBoolMap().Put(tmp)
 
 		case 21:
 
@@ -2008,7 +2008,7 @@ func (x *TestSync) MergeDirtyFromBytes(buf []byte) {
 				tmp = NewTestStringMapSync()
 			}
 			tmp.MergeDirtyFromBytes(bys)
-			x.GetStrMap().Put(k, tmp)
+			x.GetStrMap().Put(tmp)
 
 		case 23:
 

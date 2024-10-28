@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/yaoguangduan/protosync/pbgen"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/proto"
 	"testing"
@@ -80,7 +81,7 @@ func mockPersonData() pbgen.PersonSync {
 	p.GetLoveSeq().Add(pbgen.ColorType_Red)
 	a := pbgen.NewActionInfoSync()
 	a.SetAct("sleep").SetTime(24).SetDetail("sleep in bed")
-	p.GetActions().Put(a.GetAct(), a)
+	p.GetActions().Put(a)
 	p.FlushDirty(false)
 	return *p
 }
@@ -110,7 +111,7 @@ func TestMockTimeLine(t *testing.T) {
 	p.SetAge(p.GetAge() + 1).SetName(p.GetName() + ".jjj")
 	a := pbgen.NewActionInfoSync()
 	a.SetAct("eat").SetTime(1).SetDetail("not very e")
-	p.GetActions().Put(a.GetAct(), a)
+	p.GetActions().Put(a)
 	// 操作好以后，1.将脏数据及时入db；2.将脏数据下发客户端
 	p.MergeDirtyToPb(dirty1)
 	p.FlushDirty(false)
@@ -126,7 +127,7 @@ func TestMockTimeLine(t *testing.T) {
 	//5
 	aa := pbgen.NewActionInfoSync()
 	aa.SetAct("sleep").SetTime(21).SetDetail("sssssssssss")
-	p.GetActions().Put(aa.GetAct(), aa)
+	p.GetActions().Put(aa)
 	// 操作好以后，1.将脏数据及时入db；2.将脏数据下发客户端
 	p.MergeDirtyToPb(dirty1)
 	p.FlushDirty(false)
@@ -163,7 +164,7 @@ func TestBytes(t *testing.T) {
 	p.GetLoveSeq().Add(pbgen.ColorType_Red)
 
 	a := pbgen.NewActionInfoSync().SetTime(111)
-	p.GetActions().Put("act", a)
+	p.GetActions().Put(a)
 
 	bytes := p.MergeDirtyToBytes()
 
@@ -192,13 +193,13 @@ func fullTestData() *pbgen.TestSync {
 	test.GetU32Arr().Add(16)
 	test.GetI64Arr().Add(-64)
 	test.GetU64Arr().Add(64)
-	test.GetI32Map().PutOne(pbgen.NewTestI32MapSync().SetId(-23).SetAddition("i32map"))
-	test.GetStrMap().PutOne(pbgen.NewTestStringMapSync().SetId("sm").SetAddition("sm"))
-	test.GetI64Map().PutOne(pbgen.NewTestI64MapSync().SetId(-64).SetAddition("i64map"))
-	test.GetBoolMap().PutOne(pbgen.NewTestBoolMapSync().SetId(true).SetAddition("i32map"))
-	test.GetU64Map().PutOne(pbgen.NewTestU64MapSync().SetId(64).SetAddition("i32map"))
-	test.GetU64Map().PutOne(pbgen.NewTestU64MapSync().SetId(640).SetAddition("i32map2"))
-	test.GetU32Map().PutOne(pbgen.NewTestU32MapSync().SetId(32).SetAddition("i32map"))
+	test.GetI32Map().Put(pbgen.NewTestI32MapSync().SetId(-23).SetAddition("i32map"))
+	test.GetStrMap().Put(pbgen.NewTestStringMapSync().SetId("sm").SetAddition("sm"))
+	test.GetI64Map().Put(pbgen.NewTestI64MapSync().SetId(-64).SetAddition("i64map"))
+	test.GetBoolMap().Put(pbgen.NewTestBoolMapSync().SetId(true).SetAddition("i32map"))
+	test.GetU64Map().Put(pbgen.NewTestU64MapSync().SetId(64).SetAddition("i32map"))
+	test.GetU64Map().Put(pbgen.NewTestU64MapSync().SetId(640).SetAddition("i32map2"))
+	test.GetU32Map().Put(pbgen.NewTestU32MapSync().SetId(32).SetAddition("i32map"))
 	return test
 }
 func modifyAll(test *pbgen.TestSync) {
@@ -211,12 +212,12 @@ func modifyAll(test *pbgen.TestSync) {
 	test.GetU32Arr().Add(126)
 	test.GetI64Arr().Clear()
 	test.GetU64Arr().Add(624)
-	test.GetI32Map().PutOne(pbgen.NewTestI32MapSync().SetId(344).SetAddition("i32map2"))
-	test.GetStrMap().PutOne(pbgen.NewTestStringMapSync().SetId("smm").SetAddition("sm1"))
-	test.GetI64Map().PutOne(pbgen.NewTestI64MapSync().SetId(-64).SetAddition("i64map2"))
-	test.GetBoolMap().PutOne(pbgen.NewTestBoolMapSync().SetId(false).SetAddition("i32map3"))
-	test.GetU64Map().PutOne(pbgen.NewTestU64MapSync().SetId(624).SetAddition("i32map1"))
-	test.GetU32Map().PutOne(pbgen.NewTestU32MapSync().SetId(32).SetAddition("i32map8"))
+	test.GetI32Map().Put(pbgen.NewTestI32MapSync().SetId(344).SetAddition("i32map2"))
+	test.GetStrMap().Put(pbgen.NewTestStringMapSync().SetId("smm").SetAddition("sm1"))
+	test.GetI64Map().Put(pbgen.NewTestI64MapSync().SetId(-64).SetAddition("i64map2"))
+	test.GetBoolMap().Put(pbgen.NewTestBoolMapSync().SetId(false).SetAddition("i32map3"))
+	test.GetU64Map().Put(pbgen.NewTestU64MapSync().SetId(624).SetAddition("i32map1"))
+	test.GetU32Map().Put(pbgen.NewTestU32MapSync().SetId(32).SetAddition("i32map8"))
 	test.GetU64Map().Remove(640)
 }
 
@@ -233,4 +234,82 @@ func TestFloat(t *testing.T) {
 	tsn := pbgen.NewTestSync()
 	tsn.MergeDirtyFromBytes(bytes)
 	fmt.Println(tsn.GetF64())
+}
+
+func TestRealOperateInTest(t *testing.T) {
+	ts := fullTestData()
+	ts.SetId(23)
+	satisfy(t, ts)
+	//===================
+	ts.SetU32(29234)
+	satisfy(t, ts)
+	//====================
+	ts.SetF64(65.4576345)
+	satisfy(t, ts)
+	//===================
+	ts.SetB(true)
+	satisfy(t, ts)
+	//====================
+	ts.SetStr("new str changed")
+	satisfy(t, ts)
+	//===================
+	ts.SetE(pbgen.ColorType_Blue)
+	satisfy(t, ts)
+	//====================
+	ts.SetI64(283498217618476)
+	satisfy(t, ts)
+	//=========================
+	ts.GetStrArr().Clear()
+	ts.GetStrArr().Add("new str arr element")
+	satisfy(t, ts)
+	//===========================
+	ts.GetF32Arr().Add(7654.32423)
+	satisfy(t, ts)
+	//==========================
+	ts.GetEnumArr().Add(pbgen.ColorType_Green)
+	satisfy(t, ts)
+	//===========================
+	ts.GetBoolArr().Clear()
+	satisfy(t, ts)
+	//==========================
+	ts.GetI32Arr().Remove(123)
+	satisfy(t, ts)
+	//===========================
+	ts.GetU64Arr().Remove(624)
+	satisfy(t, ts)
+	//============================
+	ts.GetI32Map().Put(pbgen.NewTestI32MapSync().SetId(2222).SetAddition("addit"))
+	satisfy(t, ts)
+	//=========================
+	ts.GetStrMap().Clear()
+	ts.GetStrMap().Put(pbgen.NewTestStringMapSync().SetId("newsss"))
+	satisfy(t, ts)
+	//=============================
+	ts.GetBoolMap().Clear()
+	satisfy(t, ts)
+	//===========================
+	ts.GetU64Map().Put(pbgen.NewTestU64MapSync().SetId(888))
+	satisfy(t, ts)
+
+	//=======================
+	ts.SetObj(pbgen.NewPersonSync().SetAge(12))
+	satisfy(t, ts)
+	//=======================
+	ts.GetStrMap().Get("newsss").SetAddition("addddd")
+	satisfy(t, ts)
+
+}
+
+func satisfy(t *testing.T, ts *pbgen.TestSync) {
+	dto := &pbgen.Test{}
+	ts.MergeDirtyToPb(dto)
+	original := fullTestData()
+	original.MergeDirtyFromPb(dto)
+	tsDto := &pbgen.Test{}
+	ts.CopyToPb(tsDto)
+	oriDto := &pbgen.Test{}
+	original.CopyToPb(oriDto)
+	assert.Equal(t, ts, original)
+	t.Log(protojson.Format(tsDto))
+	t.Log(protojson.Format(oriDto))
 }

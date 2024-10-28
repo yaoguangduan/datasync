@@ -72,10 +72,9 @@ func (ms *MapSync[K, V]) Key() interface{} {
 func (ms *MapSync[K, V]) SetKey(i interface{}) {
 
 }
-func (ms *MapSync[K, V]) PutOne(s V) *MapSync[K, V] {
-	return ms.Put(s.Key().(K), s)
-}
-func (ms *MapSync[K, V]) Put(k K, s V) *MapSync[K, V] {
+
+func (ms *MapSync[K, V]) Put(s V) *MapSync[K, V] {
+	k := s.Key().(K)
 	old, exist := ms.value[k]
 	s.Key()
 	if exist {
@@ -91,8 +90,8 @@ func (ms *MapSync[K, V]) Put(k K, s V) *MapSync[K, V] {
 }
 
 func (ms *MapSync[K, V]) PutAll(kv map[K]V) *MapSync[K, V] {
-	for k, v := range kv {
-		ms.Put(k, v)
+	for _, v := range kv {
+		ms.Put(v)
 	}
 	return ms
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
-	"github.com/yaoguangduan/protosync/pbgenv2"
+	"github.com/yaoguangduan/protosync/pbgenv1"
 	"github.com/yaoguangduan/protosync/syncdep"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/encoding/prototext"
@@ -21,13 +21,13 @@ func TestAllTypeMergePB(t *testing.T) {
 	another := fullTestData()
 	another.FlushDirty(false)
 	modifyAll(test)
-	ts := &pbgenv2.Test{}
+	ts := &pbgenv1.Test{}
 	test.MergeDirtyToPb(ts)
 	t.Log(ts)
 	another.MergeDirtyFromPb(ts)
 	//修改后的数据 = 原始数据 + 脏数据
-	testD := &pbgenv2.Test{}
-	anotherD := &pbgenv2.Test{}
+	testD := &pbgenv1.Test{}
+	anotherD := &pbgenv1.Test{}
 	test.CopyToPb(testD)
 	t.Log(testD)
 	another.CopyToPb(anotherD)
@@ -37,10 +37,10 @@ func TestAllTypeMergePB(t *testing.T) {
 func TestCopy(t *testing.T) {
 	test := fullTestData()
 	test.FlushDirty(false)
-	ts := pbgenv2.Test{}
+	ts := pbgenv1.Test{}
 	test.CopyToPb(&ts)
 
-	testNew := pbgenv2.NewTestSync()
+	testNew := pbgenv1.NewTestSync()
 	testNew.CopyFromPb(&ts)
 	testNew.FlushDirty(false)
 
@@ -51,22 +51,22 @@ func TestClear(t *testing.T) {
 	test := fullTestData()
 	test.FlushDirty(false)
 	test.Clear()
-	rs := pbgenv2.Test{}
+	rs := pbgenv1.Test{}
 	test.MergeDirtyToPb(&rs)
 	t.Log(&rs)
 
-	testNew := pbgenv2.NewTestSync()
+	testNew := pbgenv1.NewTestSync()
 	testNew.MergeDirtyFromPb(&rs)
 
 	test.FlushDirty(false)
 	testNew.FlushDirty(false)
 	//assert.Equal(t, test, testNew)
-	ti := &pbgenv2.Test{}
+	ti := &pbgenv1.Test{}
 	msg := ti.ProtoReflect()
 
 	bys := lo.Must(proto.Marshal(ti))
 
-	tii := &pbgenv2.Test{}
+	tii := &pbgenv1.Test{}
 	lo.Must0(proto.Unmarshal(bys, tii))
 
 	t.Log(msg.Has(tii.ProtoReflect().Descriptor().Fields().ByName("b")))
@@ -89,12 +89,12 @@ func TestAllTypeMergeBytes(t *testing.T) {
 	test := fullTestData()
 	bytes := test.MergeDirtyToBytes()
 
-	testSync := &pbgenv2.Test{}
+	testSync := &pbgenv1.Test{}
 	err := proto.Unmarshal(bytes, testSync)
 	assert.NoError(t, err)
 	t.Log(testSync)
 
-	testSyncPb := &pbgenv2.Test{}
+	testSyncPb := &pbgenv1.Test{}
 	test.MergeDirtyToPb(testSyncPb)
 	t.Log(testSyncPb)
 
@@ -112,18 +112,18 @@ func TestAllTypeMergeFromBytes(t *testing.T) {
 	test := fullTestData()
 	bytes := test.MergeDirtyToBytes()
 
-	testSync := &pbgenv2.Test{}
+	testSync := &pbgenv1.Test{}
 	err := proto.Unmarshal(bytes, testSync)
 	assert.NoError(t, err)
 
-	testNew := pbgenv2.NewTestSync()
+	testNew := pbgenv1.NewTestSync()
 	message := protopack.Message{}
 	message.Unmarshal(bytes)
 	t.Log(message)
 	testNew.MergeDirtyFromBytes(bytes)
 
-	testD := &pbgenv2.Test{}
-	testNewD := &pbgenv2.Test{}
+	testD := &pbgenv1.Test{}
+	testNewD := &pbgenv1.Test{}
 	test.CopyToPb(testD)
 	testNew.CopyToPb(testNewD)
 	t.Log(testSync)
@@ -134,11 +134,11 @@ func TestAllTypeMergeFromBytes(t *testing.T) {
 }
 
 func TestMerge(t *testing.T) {
-	ps := pbgenv2.NewPersonSync()
-	ps.GetActions().Put("act", pbgenv2.NewActionInfoSync().SetTime(23132))
+	ps := pbgenv1.NewPersonSync()
+	ps.GetActions().Put("act", pbgenv1.NewActionInfoSync().SetTime(23132))
 	ps.FlushDirty(false)
 	ps.GetActions().Remove("act")
-	r := &pbgenv2.Person{}
+	r := &pbgenv1.Person{}
 	ps.MergeDirtyToPb(r)
 
 	fmt.Println(protojson.Format(r))
@@ -147,7 +147,7 @@ func TestMerge(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	rr := &pbgenv2.Person{}
+	rr := &pbgenv1.Person{}
 	err = proto.Unmarshal(bys, rr)
 	if err != nil {
 		panic(err)
@@ -157,24 +157,24 @@ func TestMerge(t *testing.T) {
 }
 
 func TestZeroSet(t *testing.T) {
-	action := pbgenv2.NewActionInfoSync()
+	action := pbgenv1.NewActionInfoSync()
 	action.SetDetail("onestring")
 
-	var r = &pbgenv2.ActionInfo{}
+	var r = &pbgenv1.ActionInfo{}
 	action.MergeDirtyToPb(r)
 	t.Log(r)
 	assert.Equal(t, action.GetDetail(), r.GetDetail())
 	assert.Equal(t, action.GetTime(), r.GetTime())
 
 	action.FlushDirty(false)
-	r = &pbgenv2.ActionInfo{}
+	r = &pbgenv1.ActionInfo{}
 	action.MergeDirtyToPb(r)
 	t.Log(r)
 	assert.Equal(t, "", r.GetDetail())
 	assert.Equal(t, int64(0), r.GetTime())
 
 	action.SetAct("q")
-	r = &pbgenv2.ActionInfo{}
+	r = &pbgenv1.ActionInfo{}
 	action.MergeDirtyToPb(r)
 	t.Log(r)
 
@@ -184,14 +184,14 @@ func TestZeroSet(t *testing.T) {
 	action.MergeDirtyFromPb(r)
 	assert.Equal(t, "q", action.GetAct())
 
-	p := pbgenv2.NewPersonSync()
+	p := pbgenv1.NewPersonSync()
 	p.SetIsGirl(false)
-	var ps = pbgenv2.Person{}
+	var ps = pbgenv1.Person{}
 	p.MergeDirtyToPb(&ps)
 	p.SetIsGirl(true)
 	p.FlushDirty(false)
 
-	var psc = pbgenv2.Person{}
+	var psc = pbgenv1.Person{}
 	p.MergeDirtyToPb(&psc)
 
 	t.Log(&ps)
@@ -199,11 +199,11 @@ func TestZeroSet(t *testing.T) {
 	assert.True(t, p.GetIsGirl())
 }
 func TestList(t *testing.T) {
-	p := pbgenv2.NewPersonSync()
+	p := pbgenv1.NewPersonSync()
 	p.GetFavor().Add("apple")
 	p.GetFavor().Add("bnn")
 
-	var ps1 = pbgenv2.Person{}
+	var ps1 = pbgenv1.Person{}
 	p.MergeDirtyToPb(&ps1)
 	t.Log(prototext.Format(&ps1))
 	t.Log(1 << 5)
@@ -211,7 +211,7 @@ func TestList(t *testing.T) {
 
 	p.GetFavor().Add("bnn1")
 	p.GetFavor().Clear()
-	ps1 = pbgenv2.Person{}
+	ps1 = pbgenv1.Person{}
 	p.MergeDirtyToPb(&ps1)
 	t.Log(prototext.Format(&ps1))
 	p.FlushDirty(false)
@@ -219,13 +219,13 @@ func TestList(t *testing.T) {
 	t.Log(p.GetFavor())
 }
 
-func mockPersonData() pbgenv2.PersonSync {
-	p := pbgenv2.NewPersonSync()
+func mockPersonData() pbgenv1.PersonSync {
+	p := pbgenv1.NewPersonSync()
 	p.SetIsGirl(true).SetName("john").SetAge(22).GetFavor().Add("basket")
 	p.GetDetail().SetMoney(2912).SetAddress("bj")
-	p.GetLoveSeq().Add(pbgenv2.ColorType_Green)
-	p.GetLoveSeq().Add(pbgenv2.ColorType_Red)
-	a := pbgenv2.NewActionInfoSync()
+	p.GetLoveSeq().Add(pbgenv1.ColorType_Green)
+	p.GetLoveSeq().Add(pbgenv1.ColorType_Red)
+	a := pbgenv1.NewActionInfoSync()
 	a.SetAct("sleep").SetTime(24).SetDetail("sleep in bed")
 	p.GetActions().Put(a.GetAct(), a)
 	p.FlushDirty(false)
@@ -240,7 +240,7 @@ func TestMockTimeLine(t *testing.T) {
 	p.GetFavor().Add("swim")
 	p.GetDetail().SetMoney(p.GetDetail().GetMoney() + 2000)
 	// 操作好以后，1.将脏数据及时入db；2.将脏数据下发客户端
-	dirty1 := &pbgenv2.Person{}
+	dirty1 := &pbgenv1.Person{}
 	p.MergeDirtyToPb(dirty1)
 	p.FlushDirty(false)
 	t.Log(prototext.Format(dirty1))
@@ -255,7 +255,7 @@ func TestMockTimeLine(t *testing.T) {
 
 	// 3
 	p.SetAge(p.GetAge() + 1).SetName(p.GetName() + ".jjj")
-	a := pbgenv2.NewActionInfoSync()
+	a := pbgenv1.NewActionInfoSync()
 	a.SetAct("eat").SetTime(1).SetDetail("not very e")
 	p.GetActions().Put(a.GetAct(), a)
 	// 操作好以后，1.将脏数据及时入db；2.将脏数据下发客户端
@@ -271,7 +271,7 @@ func TestMockTimeLine(t *testing.T) {
 	t.Log("fourth modify:", prototext.Format(dirty1))
 
 	//5
-	aa := pbgenv2.NewActionInfoSync()
+	aa := pbgenv1.NewActionInfoSync()
 	aa.SetAct("sleep").SetTime(21).SetDetail("sssssssssss")
 	p.GetActions().Put(aa.GetAct(), aa)
 	// 操作好以后，1.将脏数据及时入db；2.将脏数据下发客户端
@@ -294,28 +294,28 @@ func TestMockTimeLine(t *testing.T) {
 	t.Log(po.GetFavor())
 	assert.Equal(t, p, po)
 
-	pd := &pbgenv2.Person{}
-	pod := &pbgenv2.Person{}
+	pd := &pbgenv1.Person{}
+	pod := &pbgenv1.Person{}
 	p.CopyToPb(pd)
 	po.CopyToPb(pod)
 	assert.Equal(t, pd, pod)
 }
 
 func TestBytes(t *testing.T) {
-	p := pbgenv2.NewPersonSync()
+	p := pbgenv1.NewPersonSync()
 	p.SetName("name")
 	p.SetData([]byte("hello-world"))
 	p.GetDetail().SetMoney(223344)
 	p.GetFavor().Add("sleep")
-	p.GetLoveSeq().Add(pbgenv2.ColorType_Green)
-	p.GetLoveSeq().Add(pbgenv2.ColorType_Red)
+	p.GetLoveSeq().Add(pbgenv1.ColorType_Green)
+	p.GetLoveSeq().Add(pbgenv1.ColorType_Red)
 
-	a := pbgenv2.NewActionInfoSync().SetTime(111)
+	a := pbgenv1.NewActionInfoSync().SetTime(111)
 	p.GetActions().Put("act", a)
 
 	bytes := p.MergeDirtyToBytes()
 
-	pc := pbgenv2.Person{}
+	pc := pbgenv1.Person{}
 	err := proto.Unmarshal(bytes, &pc)
 	if err != nil {
 		panic(err)
@@ -326,13 +326,13 @@ func TestBytes(t *testing.T) {
 
 }
 
-func fullTestData() *pbgenv2.TestSync {
+func fullTestData() *pbgenv1.TestSync {
 
-	test := pbgenv2.NewTestSync()
-	test.SetId(-32).SetI64(-64).SetU64(64).SetU32(32).SetF32(12.23).SetF64(64.23).SetStr("str").SetB(true).SetObj(pbgenv2.NewPersonSync().SetAge(11111))
+	test := pbgenv1.NewTestSync()
+	test.SetId(-32).SetI64(-64).SetU64(64).SetU32(32).SetF32(12.23).SetF64(64.23).SetStr("str").SetB(true).SetObj(pbgenv1.NewPersonSync().SetAge(11111))
 	test.GetStrArr().Add("arr1")
 	test.GetStrArr().Add("arr2")
-	test.GetEnumArr().Add(pbgenv2.ColorType_Blue)
+	test.GetEnumArr().Add(pbgenv1.ColorType_Blue)
 	test.GetBoolArr().Add(false)
 	test.GetI32Arr().Add(-32)
 	test.GetI32Arr().Add(-16)
@@ -340,53 +340,53 @@ func fullTestData() *pbgenv2.TestSync {
 	test.GetU32Arr().Add(16)
 	test.GetI64Arr().Add(-64)
 	test.GetU64Arr().Add(64)
-	test.GetI32Map().PutOne(pbgenv2.NewTestI32MapSync().SetId(-23).SetAddition("i32map"))
-	test.GetStrMap().PutOne(pbgenv2.NewTestStringMapSync().SetId("sm").SetAddition("sm"))
-	test.GetI64Map().PutOne(pbgenv2.NewTestI64MapSync().SetId(-64).SetAddition("i64map"))
-	test.GetBoolMap().PutOne(pbgenv2.NewTestBoolMapSync().SetId(true).SetAddition("i32map"))
-	test.GetU64Map().PutOne(pbgenv2.NewTestU64MapSync().SetId(64).SetAddition("i32map"))
-	test.GetU64Map().PutOne(pbgenv2.NewTestU64MapSync().SetId(640).SetAddition("i32map2"))
-	test.GetU32Map().PutOne(pbgenv2.NewTestU32MapSync().SetId(32).SetAddition("i32map"))
+	test.GetI32Map().PutOne(pbgenv1.NewTestI32MapSync().SetId(-23).SetAddition("i32map"))
+	test.GetStrMap().PutOne(pbgenv1.NewTestStringMapSync().SetId("sm").SetAddition("sm"))
+	test.GetI64Map().PutOne(pbgenv1.NewTestI64MapSync().SetId(-64).SetAddition("i64map"))
+	test.GetBoolMap().PutOne(pbgenv1.NewTestBoolMapSync().SetId(true).SetAddition("i32map"))
+	test.GetU64Map().PutOne(pbgenv1.NewTestU64MapSync().SetId(64).SetAddition("i32map"))
+	test.GetU64Map().PutOne(pbgenv1.NewTestU64MapSync().SetId(640).SetAddition("i32map2"))
+	test.GetU32Map().PutOne(pbgenv1.NewTestU32MapSync().SetId(32).SetAddition("i32map"))
 	return test
 }
-func modifyAll(test *pbgenv2.TestSync) {
-	test.SetId(-312).SetI64(-624).SetU64(694).SetU32(328).SetStr("stro").SetB(false).SetObj(pbgenv2.NewPersonSync().SetName("11111").SetAge(1))
+func modifyAll(test *pbgenv1.TestSync) {
+	test.SetId(-312).SetI64(-624).SetU64(694).SetU32(328).SetStr("stro").SetB(false).SetObj(pbgenv1.NewPersonSync().SetName("11111").SetAge(1))
 	test.GetStrArr().Add("arr12")
-	test.GetEnumArr().Add(pbgenv2.ColorType_Blue)
+	test.GetEnumArr().Add(pbgenv1.ColorType_Blue)
 	test.GetBoolArr().Add(false)
 	test.GetI32Arr().Clear()
 	test.GetU32Arr().Add(132)
 	test.GetU32Arr().Add(126)
 	test.GetI64Arr().Clear()
 	test.GetU64Arr().Add(624)
-	test.GetI32Map().PutOne(pbgenv2.NewTestI32MapSync().SetId(344).SetAddition("i32map2"))
-	test.GetStrMap().PutOne(pbgenv2.NewTestStringMapSync().SetId("smm").SetAddition("sm1"))
-	test.GetI64Map().PutOne(pbgenv2.NewTestI64MapSync().SetId(-64).SetAddition("i64map2"))
-	test.GetBoolMap().PutOne(pbgenv2.NewTestBoolMapSync().SetId(false).SetAddition("i32map3"))
-	test.GetU64Map().PutOne(pbgenv2.NewTestU64MapSync().SetId(624).SetAddition("i32map1"))
-	test.GetU32Map().PutOne(pbgenv2.NewTestU32MapSync().SetId(32).SetAddition("i32map8"))
+	test.GetI32Map().PutOne(pbgenv1.NewTestI32MapSync().SetId(344).SetAddition("i32map2"))
+	test.GetStrMap().PutOne(pbgenv1.NewTestStringMapSync().SetId("smm").SetAddition("sm1"))
+	test.GetI64Map().PutOne(pbgenv1.NewTestI64MapSync().SetId(-64).SetAddition("i64map2"))
+	test.GetBoolMap().PutOne(pbgenv1.NewTestBoolMapSync().SetId(false).SetAddition("i32map3"))
+	test.GetU64Map().PutOne(pbgenv1.NewTestU64MapSync().SetId(624).SetAddition("i32map1"))
+	test.GetU32Map().PutOne(pbgenv1.NewTestU32MapSync().SetId(32).SetAddition("i32map8"))
 	test.GetU64Map().Remove(640)
 }
 
 func TestDirtyOp(t *testing.T) {
-	test := pbgenv2.NewTestSync()
+	test := pbgenv1.NewTestSync()
 	test.GetObj().GetDetail().SetMoney(12)
-	testPb := pbgenv2.Test{}
+	testPb := pbgenv1.Test{}
 	test.MergeDirtyToPb(&testPb)
 	fmt.Println(protojson.Format(&testPb))
-	testCopy := pbgenv2.NewTestSync()
+	testCopy := pbgenv1.NewTestSync()
 	testCopy.MergeDirtyFromPb(&testPb)
 
-	testResult := pbgenv2.Test{}
+	testResult := pbgenv1.Test{}
 	testCopy.CopyToPb(&testResult)
 	fmt.Println(protojson.Format(&testResult))
 
-	testDirty := pbgenv2.NewTestSync()
+	testDirty := pbgenv1.NewTestSync()
 	testDirty.MergeDirtyFromPb(&testResult)
-	testDirty.GetI32Map().Put(12, pbgenv2.NewTestI32MapSync().SetId(12).SetAddition("test"))
+	testDirty.GetI32Map().Put(12, pbgenv1.NewTestI32MapSync().SetId(12).SetAddition("test"))
 	testDirty.FlushDirty(false)
 	testDirty.GetI32Map().Remove(12)
-	dirtyResult := pbgenv2.Test{}
+	dirtyResult := pbgenv1.Test{}
 	testDirty.MergeDirtyToPb(&dirtyResult)
 	pm := (&dirtyResult).ProtoReflect()
 	raw := syncdep.ToRawMessage(pm.GetUnknown())

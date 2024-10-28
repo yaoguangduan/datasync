@@ -4,7 +4,7 @@
 // 	protoc        v5.27.2
 // source: Person.proto
 
-package pbgenv2
+package pbgenv1
 
 import (
 	_ "github.com/yaoguangduan/protosync/syncproto"

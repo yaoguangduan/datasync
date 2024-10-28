@@ -1,4 +1,4 @@
-package pbgenv2
+package pbgenv1
 
 import "github.com/yaoguangduan/protosync/syncdep"
 

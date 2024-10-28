@@ -4,7 +4,7 @@
 // 	protoc        v5.27.2
 // source: VipLevel.proto
 
-package pbgenv2
+package pbgenv1
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
