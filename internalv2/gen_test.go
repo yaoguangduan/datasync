@@ -398,3 +398,12 @@ func TestDirtyOp(t *testing.T) {
 	}
 	fmt.Println(raw)
 }
+
+func TestDemo(t *testing.T) {
+	person := pbgen.NewPersonSync()
+	person.SetName("proto sync")
+	person.SetAge(1)
+	personProto := &pbgen.Person{}
+	person.MergeDirtyToPb(personProto)
+	fmt.Println(protojson.Format(personProto))
+}

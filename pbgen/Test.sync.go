@@ -420,7 +420,7 @@ func (x *TestSync) MergeDirtyFromPb(r *Test) {
 		if tmp == nil {
 			tmp = NewTestI32MapSync()
 			tmp.MergeDirtyFromPb(v)
-			x.GetI32Map().Put(v.GetId(), tmp)
+			x.GetI32Map().Put(tmp)
 		} else {
 			tmp.MergeDirtyFromPb(v)
 		}
@@ -433,7 +433,7 @@ func (x *TestSync) MergeDirtyFromPb(r *Test) {
 		if tmp == nil {
 			tmp = NewTestU32MapSync()
 			tmp.MergeDirtyFromPb(v)
-			x.GetU32Map().Put(v.GetId(), tmp)
+			x.GetU32Map().Put(tmp)
 		} else {
 			tmp.MergeDirtyFromPb(v)
 		}
@@ -446,7 +446,7 @@ func (x *TestSync) MergeDirtyFromPb(r *Test) {
 		if tmp == nil {
 			tmp = NewTestI64MapSync()
 			tmp.MergeDirtyFromPb(v)
-			x.GetI64Map().Put(v.GetId(), tmp)
+			x.GetI64Map().Put(tmp)
 		} else {
 			tmp.MergeDirtyFromPb(v)
 		}
@@ -459,7 +459,7 @@ func (x *TestSync) MergeDirtyFromPb(r *Test) {
 		if tmp == nil {
 			tmp = NewTestU64MapSync()
 			tmp.MergeDirtyFromPb(v)
-			x.GetU64Map().Put(v.GetId(), tmp)
+			x.GetU64Map().Put(tmp)
 		} else {
 			tmp.MergeDirtyFromPb(v)
 		}
@@ -472,7 +472,7 @@ func (x *TestSync) MergeDirtyFromPb(r *Test) {
 		if tmp == nil {
 			tmp = NewTestBoolMapSync()
 			tmp.MergeDirtyFromPb(v)
-			x.GetBoolMap().Put(v.GetId(), tmp)
+			x.GetBoolMap().Put(tmp)
 		} else {
 			tmp.MergeDirtyFromPb(v)
 		}
@@ -485,7 +485,7 @@ func (x *TestSync) MergeDirtyFromPb(r *Test) {
 		if tmp == nil {
 			tmp = NewTestStringMapSync()
 			tmp.MergeDirtyFromPb(v)
-			x.GetStrMap().Put(v.GetId(), tmp)
+			x.GetStrMap().Put(tmp)
 		} else {
 			tmp.MergeDirtyFromPb(v)
 		}
@@ -657,7 +657,7 @@ func (x *TestSync) MergeDirtyFromBytes(buf []byte) *TestSync {
 			k := tmp.GetId()
 			v := x.GetI32Map().Get(k)
 			if v == nil {
-				x.GetI32Map().Put(k, tmp)
+				x.GetI32Map().Put(tmp)
 			} else {
 				v.MergeDirtyFromBytes(rawF.Value.([]byte))
 			}
@@ -667,7 +667,7 @@ func (x *TestSync) MergeDirtyFromBytes(buf []byte) *TestSync {
 			k := tmp.GetId()
 			v := x.GetU32Map().Get(k)
 			if v == nil {
-				x.GetU32Map().Put(k, tmp)
+				x.GetU32Map().Put(tmp)
 			} else {
 				v.MergeDirtyFromBytes(rawF.Value.([]byte))
 			}
@@ -677,7 +677,7 @@ func (x *TestSync) MergeDirtyFromBytes(buf []byte) *TestSync {
 			k := tmp.GetId()
 			v := x.GetI64Map().Get(k)
 			if v == nil {
-				x.GetI64Map().Put(k, tmp)
+				x.GetI64Map().Put(tmp)
 			} else {
 				v.MergeDirtyFromBytes(rawF.Value.([]byte))
 			}
@@ -687,7 +687,7 @@ func (x *TestSync) MergeDirtyFromBytes(buf []byte) *TestSync {
 			k := tmp.GetId()
 			v := x.GetU64Map().Get(k)
 			if v == nil {
-				x.GetU64Map().Put(k, tmp)
+				x.GetU64Map().Put(tmp)
 			} else {
 				v.MergeDirtyFromBytes(rawF.Value.([]byte))
 			}
@@ -697,7 +697,7 @@ func (x *TestSync) MergeDirtyFromBytes(buf []byte) *TestSync {
 			k := tmp.GetId()
 			v := x.GetBoolMap().Get(k)
 			if v == nil {
-				x.GetBoolMap().Put(k, tmp)
+				x.GetBoolMap().Put(tmp)
 			} else {
 				v.MergeDirtyFromBytes(rawF.Value.([]byte))
 			}
@@ -707,7 +707,7 @@ func (x *TestSync) MergeDirtyFromBytes(buf []byte) *TestSync {
 			k := tmp.GetId()
 			v := x.GetStrMap().Get(k)
 			if v == nil {
-				x.GetStrMap().Put(k, tmp)
+				x.GetStrMap().Put(tmp)
 			} else {
 				v.MergeDirtyFromBytes(rawF.Value.([]byte))
 			}

@@ -145,7 +145,7 @@ func (x *PersonSync) MergeDirtyFromPb(r *Person) {
 		if tmp == nil {
 			tmp = NewActionInfoSync()
 			tmp.MergeDirtyFromPb(v)
-			x.GetActions().Put(v.GetAct(), tmp)
+			x.GetActions().Put(tmp)
 		} else {
 			tmp.MergeDirtyFromPb(v)
 		}
@@ -200,7 +200,7 @@ func (x *PersonSync) MergeDirtyFromBytes(buf []byte) *PersonSync {
 			k := tmp.GetAct()
 			v := x.GetActions().Get(k)
 			if v == nil {
-				x.GetActions().Put(k, tmp)
+				x.GetActions().Put(tmp)
 			} else {
 				v.MergeDirtyFromBytes(rawF.Value.([]byte))
 			}
