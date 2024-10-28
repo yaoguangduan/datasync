@@ -1,6 +1,6 @@
 package pbgenv2
 
-import "github.com/yaoguangduan/datasync/syncdep"
+import "github.com/yaoguangduan/protosync/syncdep"
 
 import "google.golang.org/protobuf/encoding/protowire"
 

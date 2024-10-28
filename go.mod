@@ -1,4 +1,4 @@
-module github.com/yaoguangduan/datasync
+module github.com/yaoguangduan/protosync
 
 go 1.22
 

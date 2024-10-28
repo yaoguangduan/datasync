@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/yaoguangduan/datasync/internal"
+	"github.com/yaoguangduan/protosync/internalv2"
 	"os"
 )
 
@@ -10,5 +10,5 @@ func main() {
 	if len(os.Args) >= 2 {
 		file = os.Args[1]
 	}
-	internal.Gen(file)
+	internalv2.Gen(file)
 }

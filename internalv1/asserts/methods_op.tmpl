@@ -1,0 +1,82 @@
+{{/* gotype:github.com/yaoguangduan/datasync/internalv1/def.GoStructInfo*/}}
+
+// struct  {{.StructName}} method clear copy methods start
+
+func (x *{{.StructName}}) Clear() *{{.StructName}} {
+	{{range .Fields}}
+	{{if or (eq .Kind "message") (eq .Kind "map") (eq .Kind "list")}}
+	if x.{{.FieldName}} != nil {
+	    x.{{.FieldName}}.Clear()
+    }
+	{{else}}
+	x.Set{{title .FieldName}}({{.DefaultVal}})
+	{{end}}
+	{{end}}
+	return x
+}
+
+func (x *{{.StructName}}) CopyFromPb(r *{{.MessageName}}) *{{.StructName}}{
+    {{range .Fields}}
+
+	{{if eq .Kind "map"}}
+    for k,v := range r.{{.OriFieldName}} {
+        if v != nil {
+            vv := New{{.Struct.StructName}}()
+            vv.CopyFromPb(v)
+            x.Get{{title .FieldName}}().Put(k,vv)
+        }
+    }
+	{{else if eq .Kind "list"}}
+	if len(r.{{.OriFieldName}}) > 0 {
+        x.Get{{title .FieldName}}().AddAll(r.{{.OriFieldName}})
+    }
+    {{else if eq .Kind "[]byte"}}
+    x.Set{{title .FieldName}}(slices.Clone(r.{{.OriFieldName}}))
+    {{else if eq .Kind "message"}}
+	if r.{{.OriFieldName}} != nil {
+        x.Get{{title .FieldName}}().CopyFromPb(r.{{.OriFieldName}})
+    }
+	{{else}}
+    if r.{{.OriFieldName}} != nil {
+         x.Set{{title .FieldName}}(*r.{{.OriFieldName}})
+    }
+	{{end}}
+
+	{{end}}
+    return x
+}
+
+
+func (x *{{.StructName}}) CopyToPb(r *{{.MessageName}}) *{{.StructName}}{
+    {{range .Fields}}
+    {{if eq .Kind "map"}}
+	if x.{{.FieldName}} != nil && x.{{.FieldName}}.Len() > 0 {
+        tmp := make(map[{{.MapKeyType}}]*{{.Struct.MessageName}})
+        x.{{.FieldName}}.Each(func (k {{.MapKeyType}},v *{{.Struct.StructName}}) bool {
+            tmpV := &{{.Struct.MessageName}}{}
+            v.CopyToPb(tmpV)
+            tmp[k] = tmpV
+			return true
+        })
+		r.{{.OriFieldName}} = tmp
+    }
+    {{else if eq .Kind "list"}}
+    if x.{{.FieldName}} != nil && x.{{.FieldName}}.Len() > 0 {
+		r.{{.OriFieldName}} = x.{{.FieldName}}.ValueView()
+    }
+    {{else if eq .Kind "[]byte"}}
+    r.{{.OriFieldName}} = slices.Clone(x.{{.FieldName}})
+    {{else if eq .Kind "message"}}
+    if x.{{.FieldName}} != nil {
+		tmpV := &{{.Struct.MessageName}}{}
+        x.{{.FieldName}}.CopyToPb(tmpV)
+		r.{{.OriFieldName}} = tmpV
+    }
+    {{else}}
+    r.{{.OriFieldName}} = &x.{{.FieldName}}
+    {{end}}
+
+    {{end}}
+    return x
+
+}

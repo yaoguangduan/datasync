@@ -4,7 +4,9 @@ syntax = "proto3";
 option go_package = "../pbgenv2";
 
 
+import "protosync.options.proto";
 message IntroDetail{
+  option (sync_gen) = true;
   optional string address = 1;
   optional int32 money = 2;
 }

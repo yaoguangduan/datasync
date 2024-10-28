@@ -5,6 +5,7 @@ option go_package = "../pbgenv2";
 
 import "protosync.options.proto";
 message ActionInfo{
+  option (sync_gen) = true;
   option (sync_key) = 1;
   optional string act = 1;
   optional string detail = 2;

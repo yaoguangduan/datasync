@@ -3,7 +3,7 @@ package syncdep
 import (
 	"fmt"
 	"github.com/samber/lo"
-	"github.com/yaoguangduan/datasync/internal/gen"
+	"github.com/yaoguangduan/protosync/internalv2/gen"
 	"google.golang.org/protobuf/encoding/protowire"
 	"math"
 	"unsafe"
@@ -139,10 +139,6 @@ func GetMapKey[T any](p *ProtoRawField) T {
 	default:
 		panic(fmt.Sprintf("unkonwn raw type %v", p))
 	}
-}
-
-func Ensure(b bool) {
-
 }
 
 // MustParseVarintArr int32 uint32 int64 uint64 bool enum

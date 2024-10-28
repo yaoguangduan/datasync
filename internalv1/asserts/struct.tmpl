@@ -1,0 +1,18 @@
+{{/* gotype:github.com/yaoguangduan/datasync/internalv1/def.GoStructInfo*/}}
+
+// struct  {{.StructName}} start
+
+type {{.StructName}} struct {
+	{{range $field := .Fields}}
+	{{$field.FieldName}} {{$field.FieldType}}
+	{{end}}
+    dfm      []uint8
+    p        syncdep.Sync
+    i        int
+}
+
+func New{{- .StructName -}}() *{{.StructName}} {
+    return &{{.StructName}}{
+        dfm:make([]uint8,{{.DirtyArrSize}}),
+    }
+}

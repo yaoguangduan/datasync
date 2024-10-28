@@ -7,7 +7,7 @@
 package pbgenv2
 
 import (
-	_ "github.com/yaoguangduan/datasync/syncproto"
+	_ "github.com/yaoguangduan/protosync/syncproto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"

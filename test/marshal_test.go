@@ -2,7 +2,7 @@ package test
 
 import (
 	"fmt"
-	"github.com/yaoguangduan/datasync/pbgen"
+	"github.com/yaoguangduan/protosync/pbgen"
 	"google.golang.org/protobuf/encoding/protowire"
 	"google.golang.org/protobuf/proto"
 	"testing"

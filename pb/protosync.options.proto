@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package="github.com/yaoguangduan/datasync/syncproto";
+option go_package="github.com/yaoguangduan/protosync/syncproto";
 import "google/protobuf/descriptor.proto";
 
 

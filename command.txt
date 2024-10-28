@@ -5,4 +5,4 @@ gpsync.exe define.sync
 v2:
 
 go build -o protoc-gen-gpsync.exe .\protoc-gen-gpsync\
-.\protoc.exe --gpsync_out=./pbgenv2 --go_out=./pbgenv2 --proto_path=pbv2 --proto_path=pb --proto_path=pbv2/google/protobuf --proto_path=./pbv2 .\pbv2\Person.proto
+.\protoc.exe --gpsync_out=./pbgenv2 --go_out=./pbgenv2 --proto_path=pbv2 --proto_path=pb --proto_path=pbv2/google/protobuf --proto_path=./pbv2 .\pbv2\test.proto

@@ -1,0 +1,66 @@
+{{/* gotype:github.com/yaoguangduan/datasync/internalv1/def.GoStructInfo*/}}
+// struct {{.StructName}} Sync interface methods start
+func (x *{{.StructName}}) SetDirty(i int, dirty bool,sync syncdep.Sync) {
+    idx := i >> 3
+    off := i & 7
+    if dirty {
+        x.dfm[idx] = x.dfm[idx] | ( 1 << off)
+        x.SetParentDirty()
+    } else {
+        x.dfm[idx] = x.dfm[idx] & ^( 1 << off)
+    }
+}
+
+func (x *{{.StructName}}) SetParentDirty() {
+    if x.p != nil {
+        x.p.SetDirty(x.i,true,x)
+    }
+}
+
+func (x *{{.StructName}}) SetParent(sync syncdep.Sync, i int) {
+    x.p = sync
+    x.i = i
+}
+func (x *{{.StructName}}) FlushDirty(dirty bool) {
+	{{range $field := .Fields}}
+    if dirty || x.is{{- title $field.FieldName -}}Dirty() {
+            x.set{{- title $field.FieldName -}}Dirty(dirty,true)
+    }
+	{{end}}
+}
+
+{{range $field := .Fields}}
+func (x *{{$.StructName}}) set{{- title $field.FieldName -}}Dirty(dirty bool,recur bool) {
+    x.SetDirty({{$field.FieldNumber}},dirty,x)
+	{{if or (eq $field.Kind "message") (eq $field.Kind "map") }}
+        if recur && x.{{- $field.FieldName -}} != nil {
+			x.{{- $field.FieldName -}}.FlushDirty(dirty)
+        }
+	{{end}}
+}
+func (x *{{$.StructName}}) is{{- title $field.FieldName -}}Dirty() bool{
+    return (x.dfm[{{$field.DirtyIndex}}] & (1 << {{$field.DirtyOffset}})) != 0
+}
+{{if $field.IsKey}}
+func (x *{{$.StructName}}) Key() interface{} {
+	return x.{{- $field.FieldName -}}
+}
+func (x *{{$.StructName}}) SetKey(v interface{}) {
+    if x.p != nil {
+        if _,ok := x.p.(*syncdep.MapSync[{{$field.FieldType}},*{{$.StructName}}]); ok {
+            panic({{printf "\"%s in map ,cannot set key\"" $.StructName}})
+        }
+    }
+    x.{{$field.FieldName}} = v.({{$field.FieldType}})
+}
+{{end}}
+{{end}}
+
+{{if eq .KeyFieldNum 0}}
+func (x *{{$.StructName}}) Key() interface{} {
+    return nil
+}
+func (x *{{$.StructName}}) SetKey(v interface{}) {
+}
+{{end}}
+// struct {{.StructName}} Sync interface methods end

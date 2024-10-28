@@ -1,742 +1,12 @@
 package pbgenv2
 
-import "github.com/yaoguangduan/datasync/syncdep"
+import "github.com/yaoguangduan/protosync/syncdep"
 
 import "google.golang.org/protobuf/encoding/protowire"
 
 import "math"
 
 import "slices"
-
-// struct  TestU64MapSync start
-
-type TestU64MapSync struct {
-	id uint64
-
-	addition string
-
-	dfm []uint8
-	p   syncdep.Sync
-	i   int
-}
-
-func NewTestU64MapSync() *TestU64MapSync {
-	return &TestU64MapSync{
-		dfm: make([]uint8, 1),
-	}
-}
-
-// struct TestU64MapSync Sync interface methods start
-func (x *TestU64MapSync) SetDirty(i int, dirty bool, sync syncdep.Sync) {
-	idx := i >> 3
-	off := i & 7
-	if dirty {
-		x.dfm[idx] = x.dfm[idx] | (1 << off)
-		x.SetParentDirty()
-	} else {
-		x.dfm[idx] = x.dfm[idx] & ^(1 << off)
-	}
-}
-
-func (x *TestU64MapSync) SetParentDirty() {
-	if x.p != nil {
-		x.p.SetDirty(x.i, true, x)
-	}
-}
-
-func (x *TestU64MapSync) SetParent(sync syncdep.Sync, i int) {
-	x.p = sync
-	x.i = i
-}
-func (x *TestU64MapSync) FlushDirty(dirty bool) {
-
-	if dirty || x.isIdDirty() {
-		x.setIdDirty(dirty, true)
-	}
-
-	if dirty || x.isAdditionDirty() {
-		x.setAdditionDirty(dirty, true)
-	}
-
-}
-
-func (x *TestU64MapSync) setIdDirty(dirty bool, recur bool) {
-	x.SetDirty(1, dirty, x)
-
-}
-func (x *TestU64MapSync) isIdDirty() bool {
-	return (x.dfm[0] & (1 << 1)) != 0
-}
-
-func (x *TestU64MapSync) Key() interface{} {
-	return x.id
-}
-func (x *TestU64MapSync) SetKey(v interface{}) {
-	if x.p != nil {
-		if _, ok := x.p.(*syncdep.MapSync[uint64, *TestU64MapSync]); ok {
-			panic("TestU64MapSync in map ,cannot set key")
-		}
-	}
-	x.id = v.(uint64)
-}
-
-func (x *TestU64MapSync) setAdditionDirty(dirty bool, recur bool) {
-	x.SetDirty(2, dirty, x)
-
-}
-func (x *TestU64MapSync) isAdditionDirty() bool {
-	return (x.dfm[0] & (1 << 2)) != 0
-}
-
-// struct TestU64MapSync Sync interface methods end
-
-// struct  TestU64MapSync method clear copy methods start
-
-func (x *TestU64MapSync) Clear() *TestU64MapSync {
-
-	x.SetId(0)
-
-	x.SetAddition("")
-
-	return x
-}
-
-func (x *TestU64MapSync) CopyFromPb(r *TestU64Map) *TestU64MapSync {
-
-	if r.Id != nil {
-		x.SetId(*r.Id)
-	}
-
-	if r.Addition != nil {
-		x.SetAddition(*r.Addition)
-	}
-
-	return x
-}
-
-func (x *TestU64MapSync) CopyToPb(r *TestU64Map) *TestU64MapSync {
-
-	r.Id = &x.id
-
-	r.Addition = &x.addition
-
-	return x
-
-}
-
-// struct  TestU64MapSync get set methods start
-
-func (x *TestU64MapSync) GetId() uint64 {
-
-	return x.id
-}
-
-func (x *TestU64MapSync) SetId(v uint64) *TestU64MapSync {
-
-	if x.id == v {
-		return x
-	}
-
-	x.id = v
-	x.setIdDirty(true, false)
-	return x
-}
-
-func (x *TestU64MapSync) GetAddition() string {
-
-	return x.addition
-}
-
-func (x *TestU64MapSync) SetAddition(v string) *TestU64MapSync {
-
-	if x.addition == v {
-		return x
-	}
-
-	x.addition = v
-	x.setAdditionDirty(true, false)
-	return x
-}
-
-// struct  TestU64MapSync dirty operate methods start
-
-func (x *TestU64MapSync) MergeDirtyToPb(r *TestU64Map) *TestU64MapSync {
-
-	if x.isIdDirty() {
-		tmp := x.id
-		r.Id = &tmp
-	}
-
-	if x.isAdditionDirty() {
-		tmp := x.addition
-		r.Addition = &tmp
-	}
-
-	return x
-}
-
-func (x *TestU64MapSync) MergeDirtyFromPb(r *TestU64Map) *TestU64MapSync {
-
-	if r.Id != nil {
-		x.SetId(*r.Id)
-	}
-
-	if r.Addition != nil {
-		x.SetAddition(*r.Addition)
-	}
-
-	return x
-}
-
-func (x *TestU64MapSync) MergeDirtyFromBytes(buf []byte) {
-
-	for len(buf) > 0 {
-		num, typ, n := protowire.ConsumeTag(buf)
-		if n < 0 {
-			panic(syncdep.ErrParseRawFields)
-		}
-		buf = buf[n:]
-		var v interface{}
-		switch typ {
-		case protowire.VarintType:
-			v, n = protowire.ConsumeVarint(buf)
-		case protowire.Fixed32Type:
-			var f32 uint32
-			f32, n = protowire.ConsumeFixed32(buf)
-			v = math.Float32frombits(f32)
-		case protowire.Fixed64Type:
-			var f64 uint64
-			f64, n = protowire.ConsumeFixed64(buf)
-			v = math.Float64frombits(f64)
-		case protowire.BytesType:
-			v, n = protowire.ConsumeBytes(buf)
-		}
-		if n < 0 {
-			panic(syncdep.ErrParseRawFields)
-		}
-		buf = buf[n:]
-
-		switch num {
-
-		case 1:
-
-			x.SetId(uint64(v.(uint64)))
-
-		case 2:
-
-			x.SetAddition(syncdep.Bys2Str(v.([]byte)))
-
-		}
-	}
-}
-
-func (x *TestU64MapSync) MergeDirtyToBytes() []byte {
-	var buf []byte
-
-	if x.isIdDirty() {
-		buf = protowire.AppendTag(buf, 1, 0)
-
-		buf = protowire.AppendVarint(buf, uint64(x.id))
-
-	}
-
-	if x.isAdditionDirty() {
-		buf = protowire.AppendTag(buf, 2, 2)
-
-		buf = protowire.AppendString(buf, x.addition)
-
-	}
-
-	return buf
-}
-
-// struct  TestBoolMapSync start
-
-type TestBoolMapSync struct {
-	id bool
-
-	addition string
-
-	dfm []uint8
-	p   syncdep.Sync
-	i   int
-}
-
-func NewTestBoolMapSync() *TestBoolMapSync {
-	return &TestBoolMapSync{
-		dfm: make([]uint8, 1),
-	}
-}
-
-// struct TestBoolMapSync Sync interface methods start
-func (x *TestBoolMapSync) SetDirty(i int, dirty bool, sync syncdep.Sync) {
-	idx := i >> 3
-	off := i & 7
-	if dirty {
-		x.dfm[idx] = x.dfm[idx] | (1 << off)
-		x.SetParentDirty()
-	} else {
-		x.dfm[idx] = x.dfm[idx] & ^(1 << off)
-	}
-}
-
-func (x *TestBoolMapSync) SetParentDirty() {
-	if x.p != nil {
-		x.p.SetDirty(x.i, true, x)
-	}
-}
-
-func (x *TestBoolMapSync) SetParent(sync syncdep.Sync, i int) {
-	x.p = sync
-	x.i = i
-}
-func (x *TestBoolMapSync) FlushDirty(dirty bool) {
-
-	if dirty || x.isIdDirty() {
-		x.setIdDirty(dirty, true)
-	}
-
-	if dirty || x.isAdditionDirty() {
-		x.setAdditionDirty(dirty, true)
-	}
-
-}
-
-func (x *TestBoolMapSync) setIdDirty(dirty bool, recur bool) {
-	x.SetDirty(1, dirty, x)
-
-}
-func (x *TestBoolMapSync) isIdDirty() bool {
-	return (x.dfm[0] & (1 << 1)) != 0
-}
-
-func (x *TestBoolMapSync) Key() interface{} {
-	return x.id
-}
-func (x *TestBoolMapSync) SetKey(v interface{}) {
-	if x.p != nil {
-		if _, ok := x.p.(*syncdep.MapSync[bool, *TestBoolMapSync]); ok {
-			panic("TestBoolMapSync in map ,cannot set key")
-		}
-	}
-	x.id = v.(bool)
-}
-
-func (x *TestBoolMapSync) setAdditionDirty(dirty bool, recur bool) {
-	x.SetDirty(2, dirty, x)
-
-}
-func (x *TestBoolMapSync) isAdditionDirty() bool {
-	return (x.dfm[0] & (1 << 2)) != 0
-}
-
-// struct TestBoolMapSync Sync interface methods end
-
-// struct  TestBoolMapSync method clear copy methods start
-
-func (x *TestBoolMapSync) Clear() *TestBoolMapSync {
-
-	x.SetId(false)
-
-	x.SetAddition("")
-
-	return x
-}
-
-func (x *TestBoolMapSync) CopyFromPb(r *TestBoolMap) *TestBoolMapSync {
-
-	if r.Id != nil {
-		x.SetId(*r.Id)
-	}
-
-	if r.Addition != nil {
-		x.SetAddition(*r.Addition)
-	}
-
-	return x
-}
-
-func (x *TestBoolMapSync) CopyToPb(r *TestBoolMap) *TestBoolMapSync {
-
-	r.Id = &x.id
-
-	r.Addition = &x.addition
-
-	return x
-
-}
-
-// struct  TestBoolMapSync get set methods start
-
-func (x *TestBoolMapSync) GetId() bool {
-
-	return x.id
-}
-
-func (x *TestBoolMapSync) SetId(v bool) *TestBoolMapSync {
-
-	if x.id == v {
-		return x
-	}
-
-	x.id = v
-	x.setIdDirty(true, false)
-	return x
-}
-
-func (x *TestBoolMapSync) GetAddition() string {
-
-	return x.addition
-}
-
-func (x *TestBoolMapSync) SetAddition(v string) *TestBoolMapSync {
-
-	if x.addition == v {
-		return x
-	}
-
-	x.addition = v
-	x.setAdditionDirty(true, false)
-	return x
-}
-
-// struct  TestBoolMapSync dirty operate methods start
-
-func (x *TestBoolMapSync) MergeDirtyToPb(r *TestBoolMap) *TestBoolMapSync {
-
-	if x.isIdDirty() {
-		tmp := x.id
-		r.Id = &tmp
-	}
-
-	if x.isAdditionDirty() {
-		tmp := x.addition
-		r.Addition = &tmp
-	}
-
-	return x
-}
-
-func (x *TestBoolMapSync) MergeDirtyFromPb(r *TestBoolMap) *TestBoolMapSync {
-
-	if r.Id != nil {
-		x.SetId(*r.Id)
-	}
-
-	if r.Addition != nil {
-		x.SetAddition(*r.Addition)
-	}
-
-	return x
-}
-
-func (x *TestBoolMapSync) MergeDirtyFromBytes(buf []byte) {
-
-	for len(buf) > 0 {
-		num, typ, n := protowire.ConsumeTag(buf)
-		if n < 0 {
-			panic(syncdep.ErrParseRawFields)
-		}
-		buf = buf[n:]
-		var v interface{}
-		switch typ {
-		case protowire.VarintType:
-			v, n = protowire.ConsumeVarint(buf)
-		case protowire.Fixed32Type:
-			var f32 uint32
-			f32, n = protowire.ConsumeFixed32(buf)
-			v = math.Float32frombits(f32)
-		case protowire.Fixed64Type:
-			var f64 uint64
-			f64, n = protowire.ConsumeFixed64(buf)
-			v = math.Float64frombits(f64)
-		case protowire.BytesType:
-			v, n = protowire.ConsumeBytes(buf)
-		}
-		if n < 0 {
-			panic(syncdep.ErrParseRawFields)
-		}
-		buf = buf[n:]
-
-		switch num {
-
-		case 1:
-
-			x.SetId(v.(uint64) > 0)
-
-		case 2:
-
-			x.SetAddition(syncdep.Bys2Str(v.([]byte)))
-
-		}
-	}
-}
-
-func (x *TestBoolMapSync) MergeDirtyToBytes() []byte {
-	var buf []byte
-
-	if x.isIdDirty() {
-		buf = protowire.AppendTag(buf, 1, 0)
-
-		var v uint64 = 0
-		if x.id {
-			v = 1
-		}
-		buf = protowire.AppendVarint(buf, v)
-
-	}
-
-	if x.isAdditionDirty() {
-		buf = protowire.AppendTag(buf, 2, 2)
-
-		buf = protowire.AppendString(buf, x.addition)
-
-	}
-
-	return buf
-}
-
-// struct  TestStringMapSync start
-
-type TestStringMapSync struct {
-	id string
-
-	addition string
-
-	dfm []uint8
-	p   syncdep.Sync
-	i   int
-}
-
-func NewTestStringMapSync() *TestStringMapSync {
-	return &TestStringMapSync{
-		dfm: make([]uint8, 1),
-	}
-}
-
-// struct TestStringMapSync Sync interface methods start
-func (x *TestStringMapSync) SetDirty(i int, dirty bool, sync syncdep.Sync) {
-	idx := i >> 3
-	off := i & 7
-	if dirty {
-		x.dfm[idx] = x.dfm[idx] | (1 << off)
-		x.SetParentDirty()
-	} else {
-		x.dfm[idx] = x.dfm[idx] & ^(1 << off)
-	}
-}
-
-func (x *TestStringMapSync) SetParentDirty() {
-	if x.p != nil {
-		x.p.SetDirty(x.i, true, x)
-	}
-}
-
-func (x *TestStringMapSync) SetParent(sync syncdep.Sync, i int) {
-	x.p = sync
-	x.i = i
-}
-func (x *TestStringMapSync) FlushDirty(dirty bool) {
-
-	if dirty || x.isIdDirty() {
-		x.setIdDirty(dirty, true)
-	}
-
-	if dirty || x.isAdditionDirty() {
-		x.setAdditionDirty(dirty, true)
-	}
-
-}
-
-func (x *TestStringMapSync) setIdDirty(dirty bool, recur bool) {
-	x.SetDirty(1, dirty, x)
-
-}
-func (x *TestStringMapSync) isIdDirty() bool {
-	return (x.dfm[0] & (1 << 1)) != 0
-}
-
-func (x *TestStringMapSync) Key() interface{} {
-	return x.id
-}
-func (x *TestStringMapSync) SetKey(v interface{}) {
-	if x.p != nil {
-		if _, ok := x.p.(*syncdep.MapSync[string, *TestStringMapSync]); ok {
-			panic("TestStringMapSync in map ,cannot set key")
-		}
-	}
-	x.id = v.(string)
-}
-
-func (x *TestStringMapSync) setAdditionDirty(dirty bool, recur bool) {
-	x.SetDirty(2, dirty, x)
-
-}
-func (x *TestStringMapSync) isAdditionDirty() bool {
-	return (x.dfm[0] & (1 << 2)) != 0
-}
-
-// struct TestStringMapSync Sync interface methods end
-
-// struct  TestStringMapSync method clear copy methods start
-
-func (x *TestStringMapSync) Clear() *TestStringMapSync {
-
-	x.SetId("")
-
-	x.SetAddition("")
-
-	return x
-}
-
-func (x *TestStringMapSync) CopyFromPb(r *TestStringMap) *TestStringMapSync {
-
-	if r.Id != nil {
-		x.SetId(*r.Id)
-	}
-
-	if r.Addition != nil {
-		x.SetAddition(*r.Addition)
-	}
-
-	return x
-}
-
-func (x *TestStringMapSync) CopyToPb(r *TestStringMap) *TestStringMapSync {
-
-	r.Id = &x.id
-
-	r.Addition = &x.addition
-
-	return x
-
-}
-
-// struct  TestStringMapSync get set methods start
-
-func (x *TestStringMapSync) GetId() string {
-
-	return x.id
-}
-
-func (x *TestStringMapSync) SetId(v string) *TestStringMapSync {
-
-	if x.id == v {
-		return x
-	}
-
-	x.id = v
-	x.setIdDirty(true, false)
-	return x
-}
-
-func (x *TestStringMapSync) GetAddition() string {
-
-	return x.addition
-}
-
-func (x *TestStringMapSync) SetAddition(v string) *TestStringMapSync {
-
-	if x.addition == v {
-		return x
-	}
-
-	x.addition = v
-	x.setAdditionDirty(true, false)
-	return x
-}
-
-// struct  TestStringMapSync dirty operate methods start
-
-func (x *TestStringMapSync) MergeDirtyToPb(r *TestStringMap) *TestStringMapSync {
-
-	if x.isIdDirty() {
-		tmp := x.id
-		r.Id = &tmp
-	}
-
-	if x.isAdditionDirty() {
-		tmp := x.addition
-		r.Addition = &tmp
-	}
-
-	return x
-}
-
-func (x *TestStringMapSync) MergeDirtyFromPb(r *TestStringMap) *TestStringMapSync {
-
-	if r.Id != nil {
-		x.SetId(*r.Id)
-	}
-
-	if r.Addition != nil {
-		x.SetAddition(*r.Addition)
-	}
-
-	return x
-}
-
-func (x *TestStringMapSync) MergeDirtyFromBytes(buf []byte) {
-
-	for len(buf) > 0 {
-		num, typ, n := protowire.ConsumeTag(buf)
-		if n < 0 {
-			panic(syncdep.ErrParseRawFields)
-		}
-		buf = buf[n:]
-		var v interface{}
-		switch typ {
-		case protowire.VarintType:
-			v, n = protowire.ConsumeVarint(buf)
-		case protowire.Fixed32Type:
-			var f32 uint32
-			f32, n = protowire.ConsumeFixed32(buf)
-			v = math.Float32frombits(f32)
-		case protowire.Fixed64Type:
-			var f64 uint64
-			f64, n = protowire.ConsumeFixed64(buf)
-			v = math.Float64frombits(f64)
-		case protowire.BytesType:
-			v, n = protowire.ConsumeBytes(buf)
-		}
-		if n < 0 {
-			panic(syncdep.ErrParseRawFields)
-		}
-		buf = buf[n:]
-
-		switch num {
-
-		case 1:
-
-			x.SetId(syncdep.Bys2Str(v.([]byte)))
-
-		case 2:
-
-			x.SetAddition(syncdep.Bys2Str(v.([]byte)))
-
-		}
-	}
-}
-
-func (x *TestStringMapSync) MergeDirtyToBytes() []byte {
-	var buf []byte
-
-	if x.isIdDirty() {
-		buf = protowire.AppendTag(buf, 1, 2)
-
-		buf = protowire.AppendString(buf, x.id)
-
-	}
-
-	if x.isAdditionDirty() {
-		buf = protowire.AppendTag(buf, 2, 2)
-
-		buf = protowire.AppendString(buf, x.addition)
-
-	}
-
-	return buf
-}
 
 // struct  TestSync start
 
@@ -3863,6 +3133,736 @@ func (x *TestI64MapSync) MergeDirtyToBytes() []byte {
 		buf = protowire.AppendTag(buf, 1, 0)
 
 		buf = protowire.AppendVarint(buf, uint64(x.id))
+
+	}
+
+	if x.isAdditionDirty() {
+		buf = protowire.AppendTag(buf, 2, 2)
+
+		buf = protowire.AppendString(buf, x.addition)
+
+	}
+
+	return buf
+}
+
+// struct  TestU64MapSync start
+
+type TestU64MapSync struct {
+	id uint64
+
+	addition string
+
+	dfm []uint8
+	p   syncdep.Sync
+	i   int
+}
+
+func NewTestU64MapSync() *TestU64MapSync {
+	return &TestU64MapSync{
+		dfm: make([]uint8, 1),
+	}
+}
+
+// struct TestU64MapSync Sync interface methods start
+func (x *TestU64MapSync) SetDirty(i int, dirty bool, sync syncdep.Sync) {
+	idx := i >> 3
+	off := i & 7
+	if dirty {
+		x.dfm[idx] = x.dfm[idx] | (1 << off)
+		x.SetParentDirty()
+	} else {
+		x.dfm[idx] = x.dfm[idx] & ^(1 << off)
+	}
+}
+
+func (x *TestU64MapSync) SetParentDirty() {
+	if x.p != nil {
+		x.p.SetDirty(x.i, true, x)
+	}
+}
+
+func (x *TestU64MapSync) SetParent(sync syncdep.Sync, i int) {
+	x.p = sync
+	x.i = i
+}
+func (x *TestU64MapSync) FlushDirty(dirty bool) {
+
+	if dirty || x.isIdDirty() {
+		x.setIdDirty(dirty, true)
+	}
+
+	if dirty || x.isAdditionDirty() {
+		x.setAdditionDirty(dirty, true)
+	}
+
+}
+
+func (x *TestU64MapSync) setIdDirty(dirty bool, recur bool) {
+	x.SetDirty(1, dirty, x)
+
+}
+func (x *TestU64MapSync) isIdDirty() bool {
+	return (x.dfm[0] & (1 << 1)) != 0
+}
+
+func (x *TestU64MapSync) Key() interface{} {
+	return x.id
+}
+func (x *TestU64MapSync) SetKey(v interface{}) {
+	if x.p != nil {
+		if _, ok := x.p.(*syncdep.MapSync[uint64, *TestU64MapSync]); ok {
+			panic("TestU64MapSync in map ,cannot set key")
+		}
+	}
+	x.id = v.(uint64)
+}
+
+func (x *TestU64MapSync) setAdditionDirty(dirty bool, recur bool) {
+	x.SetDirty(2, dirty, x)
+
+}
+func (x *TestU64MapSync) isAdditionDirty() bool {
+	return (x.dfm[0] & (1 << 2)) != 0
+}
+
+// struct TestU64MapSync Sync interface methods end
+
+// struct  TestU64MapSync method clear copy methods start
+
+func (x *TestU64MapSync) Clear() *TestU64MapSync {
+
+	x.SetId(0)
+
+	x.SetAddition("")
+
+	return x
+}
+
+func (x *TestU64MapSync) CopyFromPb(r *TestU64Map) *TestU64MapSync {
+
+	if r.Id != nil {
+		x.SetId(*r.Id)
+	}
+
+	if r.Addition != nil {
+		x.SetAddition(*r.Addition)
+	}
+
+	return x
+}
+
+func (x *TestU64MapSync) CopyToPb(r *TestU64Map) *TestU64MapSync {
+
+	r.Id = &x.id
+
+	r.Addition = &x.addition
+
+	return x
+
+}
+
+// struct  TestU64MapSync get set methods start
+
+func (x *TestU64MapSync) GetId() uint64 {
+
+	return x.id
+}
+
+func (x *TestU64MapSync) SetId(v uint64) *TestU64MapSync {
+
+	if x.id == v {
+		return x
+	}
+
+	x.id = v
+	x.setIdDirty(true, false)
+	return x
+}
+
+func (x *TestU64MapSync) GetAddition() string {
+
+	return x.addition
+}
+
+func (x *TestU64MapSync) SetAddition(v string) *TestU64MapSync {
+
+	if x.addition == v {
+		return x
+	}
+
+	x.addition = v
+	x.setAdditionDirty(true, false)
+	return x
+}
+
+// struct  TestU64MapSync dirty operate methods start
+
+func (x *TestU64MapSync) MergeDirtyToPb(r *TestU64Map) *TestU64MapSync {
+
+	if x.isIdDirty() {
+		tmp := x.id
+		r.Id = &tmp
+	}
+
+	if x.isAdditionDirty() {
+		tmp := x.addition
+		r.Addition = &tmp
+	}
+
+	return x
+}
+
+func (x *TestU64MapSync) MergeDirtyFromPb(r *TestU64Map) *TestU64MapSync {
+
+	if r.Id != nil {
+		x.SetId(*r.Id)
+	}
+
+	if r.Addition != nil {
+		x.SetAddition(*r.Addition)
+	}
+
+	return x
+}
+
+func (x *TestU64MapSync) MergeDirtyFromBytes(buf []byte) {
+
+	for len(buf) > 0 {
+		num, typ, n := protowire.ConsumeTag(buf)
+		if n < 0 {
+			panic(syncdep.ErrParseRawFields)
+		}
+		buf = buf[n:]
+		var v interface{}
+		switch typ {
+		case protowire.VarintType:
+			v, n = protowire.ConsumeVarint(buf)
+		case protowire.Fixed32Type:
+			var f32 uint32
+			f32, n = protowire.ConsumeFixed32(buf)
+			v = math.Float32frombits(f32)
+		case protowire.Fixed64Type:
+			var f64 uint64
+			f64, n = protowire.ConsumeFixed64(buf)
+			v = math.Float64frombits(f64)
+		case protowire.BytesType:
+			v, n = protowire.ConsumeBytes(buf)
+		}
+		if n < 0 {
+			panic(syncdep.ErrParseRawFields)
+		}
+		buf = buf[n:]
+
+		switch num {
+
+		case 1:
+
+			x.SetId(uint64(v.(uint64)))
+
+		case 2:
+
+			x.SetAddition(syncdep.Bys2Str(v.([]byte)))
+
+		}
+	}
+}
+
+func (x *TestU64MapSync) MergeDirtyToBytes() []byte {
+	var buf []byte
+
+	if x.isIdDirty() {
+		buf = protowire.AppendTag(buf, 1, 0)
+
+		buf = protowire.AppendVarint(buf, uint64(x.id))
+
+	}
+
+	if x.isAdditionDirty() {
+		buf = protowire.AppendTag(buf, 2, 2)
+
+		buf = protowire.AppendString(buf, x.addition)
+
+	}
+
+	return buf
+}
+
+// struct  TestBoolMapSync start
+
+type TestBoolMapSync struct {
+	id bool
+
+	addition string
+
+	dfm []uint8
+	p   syncdep.Sync
+	i   int
+}
+
+func NewTestBoolMapSync() *TestBoolMapSync {
+	return &TestBoolMapSync{
+		dfm: make([]uint8, 1),
+	}
+}
+
+// struct TestBoolMapSync Sync interface methods start
+func (x *TestBoolMapSync) SetDirty(i int, dirty bool, sync syncdep.Sync) {
+	idx := i >> 3
+	off := i & 7
+	if dirty {
+		x.dfm[idx] = x.dfm[idx] | (1 << off)
+		x.SetParentDirty()
+	} else {
+		x.dfm[idx] = x.dfm[idx] & ^(1 << off)
+	}
+}
+
+func (x *TestBoolMapSync) SetParentDirty() {
+	if x.p != nil {
+		x.p.SetDirty(x.i, true, x)
+	}
+}
+
+func (x *TestBoolMapSync) SetParent(sync syncdep.Sync, i int) {
+	x.p = sync
+	x.i = i
+}
+func (x *TestBoolMapSync) FlushDirty(dirty bool) {
+
+	if dirty || x.isIdDirty() {
+		x.setIdDirty(dirty, true)
+	}
+
+	if dirty || x.isAdditionDirty() {
+		x.setAdditionDirty(dirty, true)
+	}
+
+}
+
+func (x *TestBoolMapSync) setIdDirty(dirty bool, recur bool) {
+	x.SetDirty(1, dirty, x)
+
+}
+func (x *TestBoolMapSync) isIdDirty() bool {
+	return (x.dfm[0] & (1 << 1)) != 0
+}
+
+func (x *TestBoolMapSync) Key() interface{} {
+	return x.id
+}
+func (x *TestBoolMapSync) SetKey(v interface{}) {
+	if x.p != nil {
+		if _, ok := x.p.(*syncdep.MapSync[bool, *TestBoolMapSync]); ok {
+			panic("TestBoolMapSync in map ,cannot set key")
+		}
+	}
+	x.id = v.(bool)
+}
+
+func (x *TestBoolMapSync) setAdditionDirty(dirty bool, recur bool) {
+	x.SetDirty(2, dirty, x)
+
+}
+func (x *TestBoolMapSync) isAdditionDirty() bool {
+	return (x.dfm[0] & (1 << 2)) != 0
+}
+
+// struct TestBoolMapSync Sync interface methods end
+
+// struct  TestBoolMapSync method clear copy methods start
+
+func (x *TestBoolMapSync) Clear() *TestBoolMapSync {
+
+	x.SetId(false)
+
+	x.SetAddition("")
+
+	return x
+}
+
+func (x *TestBoolMapSync) CopyFromPb(r *TestBoolMap) *TestBoolMapSync {
+
+	if r.Id != nil {
+		x.SetId(*r.Id)
+	}
+
+	if r.Addition != nil {
+		x.SetAddition(*r.Addition)
+	}
+
+	return x
+}
+
+func (x *TestBoolMapSync) CopyToPb(r *TestBoolMap) *TestBoolMapSync {
+
+	r.Id = &x.id
+
+	r.Addition = &x.addition
+
+	return x
+
+}
+
+// struct  TestBoolMapSync get set methods start
+
+func (x *TestBoolMapSync) GetId() bool {
+
+	return x.id
+}
+
+func (x *TestBoolMapSync) SetId(v bool) *TestBoolMapSync {
+
+	if x.id == v {
+		return x
+	}
+
+	x.id = v
+	x.setIdDirty(true, false)
+	return x
+}
+
+func (x *TestBoolMapSync) GetAddition() string {
+
+	return x.addition
+}
+
+func (x *TestBoolMapSync) SetAddition(v string) *TestBoolMapSync {
+
+	if x.addition == v {
+		return x
+	}
+
+	x.addition = v
+	x.setAdditionDirty(true, false)
+	return x
+}
+
+// struct  TestBoolMapSync dirty operate methods start
+
+func (x *TestBoolMapSync) MergeDirtyToPb(r *TestBoolMap) *TestBoolMapSync {
+
+	if x.isIdDirty() {
+		tmp := x.id
+		r.Id = &tmp
+	}
+
+	if x.isAdditionDirty() {
+		tmp := x.addition
+		r.Addition = &tmp
+	}
+
+	return x
+}
+
+func (x *TestBoolMapSync) MergeDirtyFromPb(r *TestBoolMap) *TestBoolMapSync {
+
+	if r.Id != nil {
+		x.SetId(*r.Id)
+	}
+
+	if r.Addition != nil {
+		x.SetAddition(*r.Addition)
+	}
+
+	return x
+}
+
+func (x *TestBoolMapSync) MergeDirtyFromBytes(buf []byte) {
+
+	for len(buf) > 0 {
+		num, typ, n := protowire.ConsumeTag(buf)
+		if n < 0 {
+			panic(syncdep.ErrParseRawFields)
+		}
+		buf = buf[n:]
+		var v interface{}
+		switch typ {
+		case protowire.VarintType:
+			v, n = protowire.ConsumeVarint(buf)
+		case protowire.Fixed32Type:
+			var f32 uint32
+			f32, n = protowire.ConsumeFixed32(buf)
+			v = math.Float32frombits(f32)
+		case protowire.Fixed64Type:
+			var f64 uint64
+			f64, n = protowire.ConsumeFixed64(buf)
+			v = math.Float64frombits(f64)
+		case protowire.BytesType:
+			v, n = protowire.ConsumeBytes(buf)
+		}
+		if n < 0 {
+			panic(syncdep.ErrParseRawFields)
+		}
+		buf = buf[n:]
+
+		switch num {
+
+		case 1:
+
+			x.SetId(v.(uint64) > 0)
+
+		case 2:
+
+			x.SetAddition(syncdep.Bys2Str(v.([]byte)))
+
+		}
+	}
+}
+
+func (x *TestBoolMapSync) MergeDirtyToBytes() []byte {
+	var buf []byte
+
+	if x.isIdDirty() {
+		buf = protowire.AppendTag(buf, 1, 0)
+
+		var v uint64 = 0
+		if x.id {
+			v = 1
+		}
+		buf = protowire.AppendVarint(buf, v)
+
+	}
+
+	if x.isAdditionDirty() {
+		buf = protowire.AppendTag(buf, 2, 2)
+
+		buf = protowire.AppendString(buf, x.addition)
+
+	}
+
+	return buf
+}
+
+// struct  TestStringMapSync start
+
+type TestStringMapSync struct {
+	id string
+
+	addition string
+
+	dfm []uint8
+	p   syncdep.Sync
+	i   int
+}
+
+func NewTestStringMapSync() *TestStringMapSync {
+	return &TestStringMapSync{
+		dfm: make([]uint8, 1),
+	}
+}
+
+// struct TestStringMapSync Sync interface methods start
+func (x *TestStringMapSync) SetDirty(i int, dirty bool, sync syncdep.Sync) {
+	idx := i >> 3
+	off := i & 7
+	if dirty {
+		x.dfm[idx] = x.dfm[idx] | (1 << off)
+		x.SetParentDirty()
+	} else {
+		x.dfm[idx] = x.dfm[idx] & ^(1 << off)
+	}
+}
+
+func (x *TestStringMapSync) SetParentDirty() {
+	if x.p != nil {
+		x.p.SetDirty(x.i, true, x)
+	}
+}
+
+func (x *TestStringMapSync) SetParent(sync syncdep.Sync, i int) {
+	x.p = sync
+	x.i = i
+}
+func (x *TestStringMapSync) FlushDirty(dirty bool) {
+
+	if dirty || x.isIdDirty() {
+		x.setIdDirty(dirty, true)
+	}
+
+	if dirty || x.isAdditionDirty() {
+		x.setAdditionDirty(dirty, true)
+	}
+
+}
+
+func (x *TestStringMapSync) setIdDirty(dirty bool, recur bool) {
+	x.SetDirty(1, dirty, x)
+
+}
+func (x *TestStringMapSync) isIdDirty() bool {
+	return (x.dfm[0] & (1 << 1)) != 0
+}
+
+func (x *TestStringMapSync) Key() interface{} {
+	return x.id
+}
+func (x *TestStringMapSync) SetKey(v interface{}) {
+	if x.p != nil {
+		if _, ok := x.p.(*syncdep.MapSync[string, *TestStringMapSync]); ok {
+			panic("TestStringMapSync in map ,cannot set key")
+		}
+	}
+	x.id = v.(string)
+}
+
+func (x *TestStringMapSync) setAdditionDirty(dirty bool, recur bool) {
+	x.SetDirty(2, dirty, x)
+
+}
+func (x *TestStringMapSync) isAdditionDirty() bool {
+	return (x.dfm[0] & (1 << 2)) != 0
+}
+
+// struct TestStringMapSync Sync interface methods end
+
+// struct  TestStringMapSync method clear copy methods start
+
+func (x *TestStringMapSync) Clear() *TestStringMapSync {
+
+	x.SetId("")
+
+	x.SetAddition("")
+
+	return x
+}
+
+func (x *TestStringMapSync) CopyFromPb(r *TestStringMap) *TestStringMapSync {
+
+	if r.Id != nil {
+		x.SetId(*r.Id)
+	}
+
+	if r.Addition != nil {
+		x.SetAddition(*r.Addition)
+	}
+
+	return x
+}
+
+func (x *TestStringMapSync) CopyToPb(r *TestStringMap) *TestStringMapSync {
+
+	r.Id = &x.id
+
+	r.Addition = &x.addition
+
+	return x
+
+}
+
+// struct  TestStringMapSync get set methods start
+
+func (x *TestStringMapSync) GetId() string {
+
+	return x.id
+}
+
+func (x *TestStringMapSync) SetId(v string) *TestStringMapSync {
+
+	if x.id == v {
+		return x
+	}
+
+	x.id = v
+	x.setIdDirty(true, false)
+	return x
+}
+
+func (x *TestStringMapSync) GetAddition() string {
+
+	return x.addition
+}
+
+func (x *TestStringMapSync) SetAddition(v string) *TestStringMapSync {
+
+	if x.addition == v {
+		return x
+	}
+
+	x.addition = v
+	x.setAdditionDirty(true, false)
+	return x
+}
+
+// struct  TestStringMapSync dirty operate methods start
+
+func (x *TestStringMapSync) MergeDirtyToPb(r *TestStringMap) *TestStringMapSync {
+
+	if x.isIdDirty() {
+		tmp := x.id
+		r.Id = &tmp
+	}
+
+	if x.isAdditionDirty() {
+		tmp := x.addition
+		r.Addition = &tmp
+	}
+
+	return x
+}
+
+func (x *TestStringMapSync) MergeDirtyFromPb(r *TestStringMap) *TestStringMapSync {
+
+	if r.Id != nil {
+		x.SetId(*r.Id)
+	}
+
+	if r.Addition != nil {
+		x.SetAddition(*r.Addition)
+	}
+
+	return x
+}
+
+func (x *TestStringMapSync) MergeDirtyFromBytes(buf []byte) {
+
+	for len(buf) > 0 {
+		num, typ, n := protowire.ConsumeTag(buf)
+		if n < 0 {
+			panic(syncdep.ErrParseRawFields)
+		}
+		buf = buf[n:]
+		var v interface{}
+		switch typ {
+		case protowire.VarintType:
+			v, n = protowire.ConsumeVarint(buf)
+		case protowire.Fixed32Type:
+			var f32 uint32
+			f32, n = protowire.ConsumeFixed32(buf)
+			v = math.Float32frombits(f32)
+		case protowire.Fixed64Type:
+			var f64 uint64
+			f64, n = protowire.ConsumeFixed64(buf)
+			v = math.Float64frombits(f64)
+		case protowire.BytesType:
+			v, n = protowire.ConsumeBytes(buf)
+		}
+		if n < 0 {
+			panic(syncdep.ErrParseRawFields)
+		}
+		buf = buf[n:]
+
+		switch num {
+
+		case 1:
+
+			x.SetId(syncdep.Bys2Str(v.([]byte)))
+
+		case 2:
+
+			x.SetAddition(syncdep.Bys2Str(v.([]byte)))
+
+		}
+	}
+}
+
+func (x *TestStringMapSync) MergeDirtyToBytes() []byte {
+	var buf []byte
+
+	if x.isIdDirty() {
+		buf = protowire.AppendTag(buf, 1, 2)
+
+		buf = protowire.AppendString(buf, x.id)
 
 	}
 
