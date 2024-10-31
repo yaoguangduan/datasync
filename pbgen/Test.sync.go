@@ -2432,40 +2432,52 @@ func (xs *Test) Marshal() []byte {
 		buf = protowire.AppendBytes(buf, bys)
 	}
 	if xs.I32Arr != nil {
+		var tmp []byte
 		for _, s := range xs.I32Arr {
-			buf = protowire.AppendTag(buf, 8, protowire.VarintType)
-			buf = protowire.AppendVarint(buf, uint64(s))
+			tmp = protowire.AppendVarint(tmp, uint64(s))
 		}
+		buf = protowire.AppendTag(buf, 8, protowire.BytesType)
+		buf = protowire.AppendBytes(buf, tmp)
 	}
 	if xs.U32Arr != nil {
+		var tmp []byte
 		for _, s := range xs.U32Arr {
-			buf = protowire.AppendTag(buf, 9, protowire.VarintType)
-			buf = protowire.AppendVarint(buf, uint64(s))
+			tmp = protowire.AppendVarint(tmp, uint64(s))
 		}
+		buf = protowire.AppendTag(buf, 9, protowire.BytesType)
+		buf = protowire.AppendBytes(buf, tmp)
 	}
 	if xs.I64Arr != nil {
+		var tmp []byte
 		for _, s := range xs.I64Arr {
-			buf = protowire.AppendTag(buf, 10, protowire.VarintType)
-			buf = protowire.AppendVarint(buf, uint64(s))
+			tmp = protowire.AppendVarint(tmp, uint64(s))
 		}
+		buf = protowire.AppendTag(buf, 10, protowire.BytesType)
+		buf = protowire.AppendBytes(buf, tmp)
 	}
 	if xs.U64Arr != nil {
+		var tmp []byte
 		for _, s := range xs.U64Arr {
-			buf = protowire.AppendTag(buf, 11, protowire.VarintType)
-			buf = protowire.AppendVarint(buf, uint64(s))
+			tmp = protowire.AppendVarint(tmp, uint64(s))
 		}
+		buf = protowire.AppendTag(buf, 11, protowire.BytesType)
+		buf = protowire.AppendBytes(buf, tmp)
 	}
 	if xs.BoolArr != nil {
+		var tmp []byte
 		for _, s := range xs.BoolArr {
-			buf = protowire.AppendTag(buf, 12, protowire.VarintType)
-			buf = protowire.AppendVarint(buf, protowire.EncodeBool(s))
+			tmp = protowire.AppendVarint(tmp, protowire.EncodeBool(s))
 		}
+		buf = protowire.AppendTag(buf, 12, protowire.BytesType)
+		buf = protowire.AppendBytes(buf, tmp)
 	}
 	if xs.EnumArr != nil {
+		var tmp []byte
 		for _, s := range xs.EnumArr {
-			buf = protowire.AppendTag(buf, 13, protowire.VarintType)
-			buf = protowire.AppendVarint(buf, uint64(s))
+			tmp = protowire.AppendVarint(tmp, uint64(s))
 		}
+		buf = protowire.AppendTag(buf, 13, protowire.BytesType)
+		buf = protowire.AppendBytes(buf, tmp)
 	}
 	if xs.StrArr != nil {
 		for _, s := range xs.StrArr {
@@ -2524,16 +2536,20 @@ func (xs *Test) Marshal() []byte {
 		buf = protowire.AppendFixed64(buf, math.Float64bits(*xs.F64))
 	}
 	if xs.F32Arr != nil {
+		var tmp []byte
 		for _, s := range xs.F32Arr {
-			buf = protowire.AppendTag(buf, 25, protowire.Fixed32Type)
-			buf = protowire.AppendFixed32(buf, math.Float32bits(s))
+			tmp = protowire.AppendFixed32(tmp, math.Float32bits(s))
 		}
+		buf = protowire.AppendTag(buf, 25, protowire.BytesType)
+		buf = protowire.AppendBytes(buf, tmp)
 	}
 	if xs.F64Arr != nil {
+		var tmp []byte
 		for _, s := range xs.F64Arr {
-			buf = protowire.AppendTag(buf, 26, protowire.Fixed64Type)
-			buf = protowire.AppendFixed64(buf, math.Float64bits(s))
+			tmp = protowire.AppendFixed64(tmp, math.Float64bits(s))
 		}
+		buf = protowire.AppendTag(buf, 26, protowire.BytesType)
+		buf = protowire.AppendBytes(buf, tmp)
 	}
 	return buf
 }

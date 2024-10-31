@@ -783,10 +783,12 @@ func (xs *Person) Marshal() []byte {
 		}
 	}
 	if xs.LoveSeq != nil {
+		var tmp []byte
 		for _, s := range xs.LoveSeq {
-			buf = protowire.AppendTag(buf, 6, protowire.VarintType)
-			buf = protowire.AppendVarint(buf, uint64(s))
+			tmp = protowire.AppendVarint(tmp, uint64(s))
 		}
+		buf = protowire.AppendTag(buf, 6, protowire.BytesType)
+		buf = protowire.AppendBytes(buf, tmp)
 	}
 	if xs.IsGirl != nil {
 		buf = protowire.AppendTag(buf, 7, protowire.VarintType)

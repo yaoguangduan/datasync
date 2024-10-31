@@ -135,7 +135,7 @@ func TestAllTypeMergeFromBytes(t *testing.T) {
 
 func TestMerge(t *testing.T) {
 	ps := pbgenv1.NewPersonSync()
-	ps.GetActions().Put("act", pbgenv1.NewActionInfoSync().SetTime(23132))
+	ps.GetActions().Put(pbgenv1.NewActionInfoSync().SetTime(23132))
 	ps.FlushDirty(false)
 	ps.GetActions().Remove("act")
 	r := &pbgenv1.Person{}
@@ -227,7 +227,7 @@ func mockPersonData() pbgenv1.PersonSync {
 	p.GetLoveSeq().Add(pbgenv1.ColorType_Red)
 	a := pbgenv1.NewActionInfoSync()
 	a.SetAct("sleep").SetTime(24).SetDetail("sleep in bed")
-	p.GetActions().Put(a.GetAct(), a)
+	p.GetActions().Put(a)
 	p.FlushDirty(false)
 	return *p
 }
@@ -257,7 +257,7 @@ func TestMockTimeLine(t *testing.T) {
 	p.SetAge(p.GetAge() + 1).SetName(p.GetName() + ".jjj")
 	a := pbgenv1.NewActionInfoSync()
 	a.SetAct("eat").SetTime(1).SetDetail("not very e")
-	p.GetActions().Put(a.GetAct(), a)
+	p.GetActions().Put(a)
 	// 操作好以后，1.将脏数据及时入db；2.将脏数据下发客户端
 	p.MergeDirtyToPb(dirty1)
 	p.FlushDirty(false)
@@ -273,7 +273,7 @@ func TestMockTimeLine(t *testing.T) {
 	//5
 	aa := pbgenv1.NewActionInfoSync()
 	aa.SetAct("sleep").SetTime(21).SetDetail("sssssssssss")
-	p.GetActions().Put(aa.GetAct(), aa)
+	p.GetActions().Put(aa)
 	// 操作好以后，1.将脏数据及时入db；2.将脏数据下发客户端
 	p.MergeDirtyToPb(dirty1)
 	p.FlushDirty(false)
@@ -311,7 +311,7 @@ func TestBytes(t *testing.T) {
 	p.GetLoveSeq().Add(pbgenv1.ColorType_Red)
 
 	a := pbgenv1.NewActionInfoSync().SetTime(111)
-	p.GetActions().Put("act", a)
+	p.GetActions().Put(a)
 
 	bytes := p.MergeDirtyToBytes()
 
@@ -340,13 +340,13 @@ func fullTestData() *pbgenv1.TestSync {
 	test.GetU32Arr().Add(16)
 	test.GetI64Arr().Add(-64)
 	test.GetU64Arr().Add(64)
-	test.GetI32Map().PutOne(pbgenv1.NewTestI32MapSync().SetId(-23).SetAddition("i32map"))
-	test.GetStrMap().PutOne(pbgenv1.NewTestStringMapSync().SetId("sm").SetAddition("sm"))
-	test.GetI64Map().PutOne(pbgenv1.NewTestI64MapSync().SetId(-64).SetAddition("i64map"))
-	test.GetBoolMap().PutOne(pbgenv1.NewTestBoolMapSync().SetId(true).SetAddition("i32map"))
-	test.GetU64Map().PutOne(pbgenv1.NewTestU64MapSync().SetId(64).SetAddition("i32map"))
-	test.GetU64Map().PutOne(pbgenv1.NewTestU64MapSync().SetId(640).SetAddition("i32map2"))
-	test.GetU32Map().PutOne(pbgenv1.NewTestU32MapSync().SetId(32).SetAddition("i32map"))
+	test.GetI32Map().Put(pbgenv1.NewTestI32MapSync().SetId(-23).SetAddition("i32map"))
+	test.GetStrMap().Put(pbgenv1.NewTestStringMapSync().SetId("sm").SetAddition("sm"))
+	test.GetI64Map().Put(pbgenv1.NewTestI64MapSync().SetId(-64).SetAddition("i64map"))
+	test.GetBoolMap().Put(pbgenv1.NewTestBoolMapSync().SetId(true).SetAddition("i32map"))
+	test.GetU64Map().Put(pbgenv1.NewTestU64MapSync().SetId(64).SetAddition("i32map"))
+	test.GetU64Map().Put(pbgenv1.NewTestU64MapSync().SetId(640).SetAddition("i32map2"))
+	test.GetU32Map().Put(pbgenv1.NewTestU32MapSync().SetId(32).SetAddition("i32map"))
 	return test
 }
 func modifyAll(test *pbgenv1.TestSync) {
@@ -359,12 +359,12 @@ func modifyAll(test *pbgenv1.TestSync) {
 	test.GetU32Arr().Add(126)
 	test.GetI64Arr().Clear()
 	test.GetU64Arr().Add(624)
-	test.GetI32Map().PutOne(pbgenv1.NewTestI32MapSync().SetId(344).SetAddition("i32map2"))
-	test.GetStrMap().PutOne(pbgenv1.NewTestStringMapSync().SetId("smm").SetAddition("sm1"))
-	test.GetI64Map().PutOne(pbgenv1.NewTestI64MapSync().SetId(-64).SetAddition("i64map2"))
-	test.GetBoolMap().PutOne(pbgenv1.NewTestBoolMapSync().SetId(false).SetAddition("i32map3"))
-	test.GetU64Map().PutOne(pbgenv1.NewTestU64MapSync().SetId(624).SetAddition("i32map1"))
-	test.GetU32Map().PutOne(pbgenv1.NewTestU32MapSync().SetId(32).SetAddition("i32map8"))
+	test.GetI32Map().Put(pbgenv1.NewTestI32MapSync().SetId(344).SetAddition("i32map2"))
+	test.GetStrMap().Put(pbgenv1.NewTestStringMapSync().SetId("smm").SetAddition("sm1"))
+	test.GetI64Map().Put(pbgenv1.NewTestI64MapSync().SetId(-64).SetAddition("i64map2"))
+	test.GetBoolMap().Put(pbgenv1.NewTestBoolMapSync().SetId(false).SetAddition("i32map3"))
+	test.GetU64Map().Put(pbgenv1.NewTestU64MapSync().SetId(624).SetAddition("i32map1"))
+	test.GetU32Map().Put(pbgenv1.NewTestU32MapSync().SetId(32).SetAddition("i32map8"))
 	test.GetU64Map().Remove(640)
 }
 
@@ -383,7 +383,7 @@ func TestDirtyOp(t *testing.T) {
 
 	testDirty := pbgenv1.NewTestSync()
 	testDirty.MergeDirtyFromPb(&testResult)
-	testDirty.GetI32Map().Put(12, pbgenv1.NewTestI32MapSync().SetId(12).SetAddition("test"))
+	testDirty.GetI32Map().Put(pbgenv1.NewTestI32MapSync().SetId(12).SetAddition("test"))
 	testDirty.FlushDirty(false)
 	testDirty.GetI32Map().Remove(12)
 	dirtyResult := pbgenv1.Test{}

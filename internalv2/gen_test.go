@@ -426,6 +426,7 @@ func TestUnmarshal(t *testing.T) {
 	assert.Equal(t, protojson.Format(tu), protojson.Format(tuu))
 
 }
+
 func TestMarshal(t *testing.T) {
 
 	test := fullTestData()

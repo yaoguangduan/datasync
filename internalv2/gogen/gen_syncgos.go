@@ -169,24 +169,30 @@ func generateProtoSyncOperateFunc(fw *gen.FileWriter, sfd gen.SyncDef, msg gen.S
 				fw.PLF("buf = protowire.AppendString(buf,s)")
 				fw.PLF("}")
 			} else if field.ListType == "float" {
+				fw.PLF("var tmp []byte")
 				fw.PLF("for _,s := range xs.%s {", field.CapitalName)
-				fw.PLF("buf = protowire.AppendTag(buf,%d,protowire.Fixed32Type)", field.Number)
-				fw.PLF("buf = protowire.AppendFixed32(buf,math.Float32bits(s))")
+				fw.PLF("tmp = protowire.AppendFixed32(tmp,math.Float32bits(s))")
 				fw.PLF("}")
+				fw.PLF("buf = protowire.AppendTag(buf,%d,protowire.BytesType)", field.Number)
+				fw.PLF("buf = protowire.AppendBytes(buf,tmp)")
 			} else if field.ListType == "double" {
+				fw.PLF("var tmp []byte")
 				fw.PLF("for _,s := range xs.%s {", field.CapitalName)
-				fw.PLF("buf = protowire.AppendTag(buf,%d,protowire.Fixed64Type)", field.Number)
-				fw.PLF("buf = protowire.AppendFixed64(buf,math.Float64bits(s))")
+				fw.PLF("tmp = protowire.AppendFixed64(tmp,math.Float64bits(s))")
 				fw.PLF("}")
+				fw.PLF("buf = protowire.AppendTag(buf,%d,protowire.BytesType)", field.Number)
+				fw.PLF("buf = protowire.AppendBytes(buf,tmp)")
 			} else {
+				fw.PLF("var tmp []byte")
 				fw.PLF("for _,s := range xs.%s {", field.CapitalName)
-				fw.PLF("buf = protowire.AppendTag(buf,%d,protowire.VarintType)", field.Number)
 				if field.ListType == "bool" {
-					fw.PLF("buf = protowire.AppendVarint(buf,protowire.EncodeBool(s))")
+					fw.PLF("tmp = protowire.AppendVarint(tmp,protowire.EncodeBool(s))")
 				} else {
-					fw.PLF("buf = protowire.AppendVarint(buf,uint64(s))")
+					fw.PLF("tmp = protowire.AppendVarint(tmp,uint64(s))")
 				}
 				fw.PLF("}")
+				fw.PLF("buf = protowire.AppendTag(buf,%d,protowire.BytesType)", field.Number)
+				fw.PLF("buf = protowire.AppendBytes(buf,tmp)")
 			}
 		}
 		if field.IsMap() {
