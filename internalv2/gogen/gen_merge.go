@@ -222,7 +222,7 @@ func generateFuncMergeDirtyFromBytes(fw *gen.FileWriter, msg gen.SyncMsgOrEnumDe
 			if field.Kind == "float" || field.Kind == "double" {
 				fw.PLF("x.Set%s(rawF.Value.(%s))", field.CapitalName, gen.FloatConvert(field.Kind))
 			} else if field.Kind == "bool" {
-				fw.PLF("x.Set%s(rawF.Value.(uint64) > 0)", field.CapitalName)
+				fw.PLF("x.Set%s(protowire.DecodeBool(rawF.Value.(uint64)))", field.CapitalName)
 			} else if field.Kind == "enum" {
 				fw.PLF("x.Set%s(%s(rawF.Value.(uint64)))", field.CapitalName, field.MsgOrEnumRef.Name)
 			} else if field.Kind == "string" {
@@ -270,7 +270,7 @@ func generateFuncMergeDirtyFromBytes(fw *gen.FileWriter, msg gen.SyncMsgOrEnumDe
 					fw.PLF("panic(n)")
 					fw.PLF("}")
 					fw.PLF("tmp = tmp[n:]")
-					fw.PLF("x.Get%s().Add(val> 0)", field.CapitalName)
+					fw.PLF("x.Get%s().Add(protowire.DecodeBool(val))", field.CapitalName)
 				} else {
 					fw.PLF("val, n := protowire.ConsumeVarint(tmp)")
 					fw.PLF("if n <0 {")

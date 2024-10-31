@@ -163,3 +163,43 @@ func (xs *PayRecord) SetTimestamp(v int64) {
 func (xs *PayRecord) SetClassic(v string) {
 	xs.Classic = &v
 }
+func (xs *PayRecord) Unmarshal(buf []byte) error {
+	for len(buf) > 0 {
+		number, _, n := protowire.ConsumeTag(buf)
+		if n < 0 {
+			return protowire.ParseError(n)
+		}
+		buf = buf[n:]
+		switch number {
+		case 1:
+			v, n := protowire.ConsumeVarint(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetTimestamp(int64(v))
+			break
+		case 2:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetClassic(syncdep.Bys2Str(v))
+			break
+		}
+	}
+	return nil
+}
+func (xs *PayRecord) Marshal() []byte {
+	var buf []byte
+	if xs.Timestamp != nil {
+		buf = protowire.AppendTag(buf, 1, protowire.VarintType)
+		buf = protowire.AppendVarint(buf, uint64(*xs.Timestamp))
+	}
+	if xs.Classic != nil {
+		buf = protowire.AppendTag(buf, 2, protowire.BytesType)
+		buf = protowire.AppendString(buf, *xs.Classic)
+	}
+	return buf
+}

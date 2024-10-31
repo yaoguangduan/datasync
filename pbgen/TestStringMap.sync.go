@@ -163,3 +163,43 @@ func (xs *TestStringMap) SetId(v string) {
 func (xs *TestStringMap) SetAddition(v string) {
 	xs.Addition = &v
 }
+func (xs *TestStringMap) Unmarshal(buf []byte) error {
+	for len(buf) > 0 {
+		number, _, n := protowire.ConsumeTag(buf)
+		if n < 0 {
+			return protowire.ParseError(n)
+		}
+		buf = buf[n:]
+		switch number {
+		case 1:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetId(syncdep.Bys2Str(v))
+			break
+		case 2:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetAddition(syncdep.Bys2Str(v))
+			break
+		}
+	}
+	return nil
+}
+func (xs *TestStringMap) Marshal() []byte {
+	var buf []byte
+	if xs.Id != nil {
+		buf = protowire.AppendTag(buf, 1, protowire.BytesType)
+		buf = protowire.AppendString(buf, *xs.Id)
+	}
+	if xs.Addition != nil {
+		buf = protowire.AppendTag(buf, 2, protowire.BytesType)
+		buf = protowire.AppendString(buf, *xs.Addition)
+	}
+	return buf
+}

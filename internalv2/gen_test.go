@@ -405,5 +405,57 @@ func TestDemo(t *testing.T) {
 	person.SetAge(1)
 	personProto := &pbgen.Person{}
 	person.MergeDirtyToPb(personProto)
+	proto.Marshal(personProto)
 	fmt.Println(protojson.Format(personProto))
+}
+
+func TestUnmarshal(t *testing.T) {
+	test := fullTestData()
+	testDto := &pbgen.Test{}
+	test.CopyToPb(testDto)
+	bys, err := proto.Marshal(testDto)
+	assert.NoError(t, err)
+	tu := &pbgen.Test{}
+	err = proto.Unmarshal(bys, tu)
+	assert.NoError(t, err)
+	tuu := &pbgen.Test{}
+	tuu.Unmarshal(bys)
+	t.Log(protojson.Format(tu))
+	t.Log(protojson.Format(tuu))
+
+	assert.Equal(t, protojson.Format(tu), protojson.Format(tuu))
+
+}
+func TestMarshal(t *testing.T) {
+
+	test := fullTestData()
+	testDto := &pbgen.Test{}
+	test.CopyToPb(testDto)
+	bys, err := proto.Marshal(testDto)
+	bysSelf := testDto.Marshal()
+	assert.NoError(t, err)
+	testStand := &pbgen.Test{}
+	testSelf := &pbgen.Test{}
+	err = proto.Unmarshal(bys, testStand)
+	assert.NoError(t, err)
+	err = testSelf.Unmarshal(bysSelf)
+	t.Log(protojson.Format(testStand))
+	t.Log(protojson.Format(testSelf))
+	assert.Equal(t, testStand, testSelf)
+
+}
+func TestVariant(t *testing.T) {
+	test := &pbgen.TestI32Map{}
+	test.SetId(-1)
+	bys := test.Marshal()
+	t.Log(bys)
+	byss, err := proto.Marshal(test)
+	assert.NoError(t, err)
+	t.Log(byss)
+	t.Log(len(byss))
+
+	tu := &pbgen.TestI32Map{}
+	err = proto.Unmarshal(bys, tu)
+	assert.NoError(t, err)
+	t.Log(*tu.Id)
 }

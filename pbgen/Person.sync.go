@@ -217,7 +217,7 @@ func (x *PersonSync) MergeDirtyFromBytes(buf []byte) *PersonSync {
 				x.GetLoveSeq().Add(ColorType(val))
 			}
 		case 7:
-			x.SetIsGirl(rawF.Value.(uint64) > 0)
+			x.SetIsGirl(protowire.DecodeBool(rawF.Value.(uint64)))
 		case 8:
 			x.GetDetail().MergeDirtyFromBytes(rawF.Value.([]byte))
 		case 9:
@@ -630,11 +630,20 @@ func (xs *Person) SetName(v string) {
 func (xs *Person) SetActions(v []*ActionInfo) {
 	xs.Actions = v
 }
+func (xs *Person) AddActions(v *ActionInfo) {
+	xs.Actions = append(xs.Actions, v)
+}
 func (xs *Person) SetFavor(v []string) {
 	xs.Favor = v
 }
+func (xs *Person) AddFavor(v string) {
+	xs.Favor = append(xs.Favor, v)
+}
 func (xs *Person) SetLoveSeq(v []ColorType) {
 	xs.LoveSeq = v
+}
+func (xs *Person) AddLoveSeq(v ColorType) {
+	xs.LoveSeq = append(xs.LoveSeq, v)
 }
 func (xs *Person) SetIsGirl(v bool) {
 	xs.IsGirl = &v
@@ -644,4 +653,153 @@ func (xs *Person) SetDetail(v *IntroDetail) {
 }
 func (xs *Person) SetData(v []byte) {
 	xs.Data = v
+}
+func (xs *Person) Unmarshal(buf []byte) error {
+	for len(buf) > 0 {
+		number, _, n := protowire.ConsumeTag(buf)
+		if n < 0 {
+			return protowire.ParseError(n)
+		}
+		buf = buf[n:]
+		switch number {
+		case 1:
+			v, n := protowire.ConsumeVarint(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetAge(int32(v))
+			break
+		case 2:
+			v, n := protowire.ConsumeVarint(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetVipLevel(VipLevel(v))
+			break
+		case 3:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetName(syncdep.Bys2Str(v))
+			break
+		case 4:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			tmp := &ActionInfo{}
+			err := tmp.Unmarshal(v)
+			if err != nil {
+				return err
+			}
+			xs.AddActions(tmp)
+			break
+		case 5:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.AddFavor(syncdep.Bys2Str(v))
+			break
+		case 6:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			for len(v) > 0 {
+				vv, nn := protowire.ConsumeVarint(v)
+				if nn < 0 {
+					return protowire.ParseError(n)
+				}
+				v = v[nn:]
+				xs.AddLoveSeq(ColorType(vv))
+			}
+			break
+		case 7:
+			v, n := protowire.ConsumeVarint(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetIsGirl(protowire.DecodeBool(v))
+			break
+		case 8:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			tmp := &IntroDetail{}
+			err := tmp.Unmarshal(v)
+			if err != nil {
+				return err
+			}
+			xs.SetDetail(tmp)
+			break
+		case 9:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetData(v)
+			break
+		}
+	}
+	return nil
+}
+func (xs *Person) Marshal() []byte {
+	var buf []byte
+	if xs.Age != nil {
+		buf = protowire.AppendTag(buf, 1, protowire.VarintType)
+		buf = protowire.AppendVarint(buf, uint64(*xs.Age))
+	}
+	if xs.VipLevel != nil {
+		buf = protowire.AppendTag(buf, 2, protowire.VarintType)
+		buf = protowire.AppendVarint(buf, uint64(*xs.VipLevel))
+	}
+	if xs.Name != nil {
+		buf = protowire.AppendTag(buf, 3, protowire.BytesType)
+		buf = protowire.AppendString(buf, *xs.Name)
+	}
+	if xs.Actions != nil {
+		for _, s := range xs.Actions {
+			bys := s.Marshal()
+			buf = protowire.AppendTag(buf, 4, protowire.BytesType)
+			buf = protowire.AppendBytes(buf, bys)
+		}
+	}
+	if xs.Favor != nil {
+		for _, s := range xs.Favor {
+			buf = protowire.AppendTag(buf, 5, protowire.BytesType)
+			buf = protowire.AppendString(buf, s)
+		}
+	}
+	if xs.LoveSeq != nil {
+		for _, s := range xs.LoveSeq {
+			buf = protowire.AppendTag(buf, 6, protowire.VarintType)
+			buf = protowire.AppendVarint(buf, uint64(s))
+		}
+	}
+	if xs.IsGirl != nil {
+		buf = protowire.AppendTag(buf, 7, protowire.VarintType)
+		buf = protowire.AppendVarint(buf, protowire.EncodeBool(*xs.IsGirl))
+	}
+	if xs.Detail != nil {
+		bys := (*xs.Detail).Marshal()
+		buf = protowire.AppendTag(buf, 8, protowire.BytesType)
+		buf = protowire.AppendBytes(buf, bys)
+	}
+	if xs.Data != nil {
+		buf = protowire.AppendTag(buf, 9, protowire.BytesType)
+		buf = protowire.AppendBytes(buf, xs.Data)
+	}
+	return buf
 }

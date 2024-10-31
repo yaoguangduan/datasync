@@ -163,3 +163,43 @@ func (xs *TestU64Map) SetId(v uint64) {
 func (xs *TestU64Map) SetAddition(v string) {
 	xs.Addition = &v
 }
+func (xs *TestU64Map) Unmarshal(buf []byte) error {
+	for len(buf) > 0 {
+		number, _, n := protowire.ConsumeTag(buf)
+		if n < 0 {
+			return protowire.ParseError(n)
+		}
+		buf = buf[n:]
+		switch number {
+		case 1:
+			v, n := protowire.ConsumeVarint(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetId(uint64(v))
+			break
+		case 2:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetAddition(syncdep.Bys2Str(v))
+			break
+		}
+	}
+	return nil
+}
+func (xs *TestU64Map) Marshal() []byte {
+	var buf []byte
+	if xs.Id != nil {
+		buf = protowire.AppendTag(buf, 1, protowire.VarintType)
+		buf = protowire.AppendVarint(buf, uint64(*xs.Id))
+	}
+	if xs.Addition != nil {
+		buf = protowire.AppendTag(buf, 2, protowire.BytesType)
+		buf = protowire.AppendString(buf, *xs.Addition)
+	}
+	return buf
+}

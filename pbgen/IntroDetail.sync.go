@@ -158,3 +158,43 @@ func (xs *IntroDetail) SetAddress(v string) {
 func (xs *IntroDetail) SetMoney(v int32) {
 	xs.Money = &v
 }
+func (xs *IntroDetail) Unmarshal(buf []byte) error {
+	for len(buf) > 0 {
+		number, _, n := protowire.ConsumeTag(buf)
+		if n < 0 {
+			return protowire.ParseError(n)
+		}
+		buf = buf[n:]
+		switch number {
+		case 1:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetAddress(syncdep.Bys2Str(v))
+			break
+		case 2:
+			v, n := protowire.ConsumeVarint(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetMoney(int32(v))
+			break
+		}
+	}
+	return nil
+}
+func (xs *IntroDetail) Marshal() []byte {
+	var buf []byte
+	if xs.Address != nil {
+		buf = protowire.AppendTag(buf, 1, protowire.BytesType)
+		buf = protowire.AppendString(buf, *xs.Address)
+	}
+	if xs.Money != nil {
+		buf = protowire.AppendTag(buf, 2, protowire.VarintType)
+		buf = protowire.AppendVarint(buf, uint64(*xs.Money))
+	}
+	return buf
+}

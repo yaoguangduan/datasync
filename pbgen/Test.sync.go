@@ -582,7 +582,7 @@ func (x *TestSync) MergeDirtyFromBytes(buf []byte) *TestSync {
 		case 4:
 			x.SetU64(uint64(rawF.Value.(uint64)))
 		case 5:
-			x.SetB(rawF.Value.(uint64) > 0)
+			x.SetB(protowire.DecodeBool(rawF.Value.(uint64)))
 		case 6:
 			x.SetE(ColorType(rawF.Value.(uint64)))
 		case 7:
@@ -637,7 +637,7 @@ func (x *TestSync) MergeDirtyFromBytes(buf []byte) *TestSync {
 					panic(n)
 				}
 				tmp = tmp[n:]
-				x.GetBoolArr().Add(val > 0)
+				x.GetBoolArr().Add(protowire.DecodeBool(val))
 			}
 		case 13:
 			tmp := rawF.Value.([]byte)
@@ -2000,41 +2000,80 @@ func (xs *Test) SetObj(v *Person) {
 func (xs *Test) SetI32Arr(v []int32) {
 	xs.I32Arr = v
 }
+func (xs *Test) AddI32Arr(v int32) {
+	xs.I32Arr = append(xs.I32Arr, v)
+}
 func (xs *Test) SetU32Arr(v []uint32) {
 	xs.U32Arr = v
+}
+func (xs *Test) AddU32Arr(v uint32) {
+	xs.U32Arr = append(xs.U32Arr, v)
 }
 func (xs *Test) SetI64Arr(v []int64) {
 	xs.I64Arr = v
 }
+func (xs *Test) AddI64Arr(v int64) {
+	xs.I64Arr = append(xs.I64Arr, v)
+}
 func (xs *Test) SetU64Arr(v []uint64) {
 	xs.U64Arr = v
+}
+func (xs *Test) AddU64Arr(v uint64) {
+	xs.U64Arr = append(xs.U64Arr, v)
 }
 func (xs *Test) SetBoolArr(v []bool) {
 	xs.BoolArr = v
 }
+func (xs *Test) AddBoolArr(v bool) {
+	xs.BoolArr = append(xs.BoolArr, v)
+}
 func (xs *Test) SetEnumArr(v []ColorType) {
 	xs.EnumArr = v
+}
+func (xs *Test) AddEnumArr(v ColorType) {
+	xs.EnumArr = append(xs.EnumArr, v)
 }
 func (xs *Test) SetStrArr(v []string) {
 	xs.StrArr = v
 }
+func (xs *Test) AddStrArr(v string) {
+	xs.StrArr = append(xs.StrArr, v)
+}
 func (xs *Test) SetI32Map(v []*TestI32Map) {
 	xs.I32Map = v
+}
+func (xs *Test) AddI32Map(v *TestI32Map) {
+	xs.I32Map = append(xs.I32Map, v)
 }
 func (xs *Test) SetU32Map(v []*TestU32Map) {
 	xs.U32Map = v
 }
+func (xs *Test) AddU32Map(v *TestU32Map) {
+	xs.U32Map = append(xs.U32Map, v)
+}
 func (xs *Test) SetI64Map(v []*TestI64Map) {
 	xs.I64Map = v
+}
+func (xs *Test) AddI64Map(v *TestI64Map) {
+	xs.I64Map = append(xs.I64Map, v)
 }
 func (xs *Test) SetU64Map(v []*TestU64Map) {
 	xs.U64Map = v
 }
+func (xs *Test) AddU64Map(v *TestU64Map) {
+	xs.U64Map = append(xs.U64Map, v)
+}
 func (xs *Test) SetBoolMap(v []*TestBoolMap) {
 	xs.BoolMap = v
 }
+func (xs *Test) AddBoolMap(v *TestBoolMap) {
+	xs.BoolMap = append(xs.BoolMap, v)
+}
 func (xs *Test) SetStrMap(v []*TestStringMap) {
 	xs.StrMap = v
+}
+func (xs *Test) AddStrMap(v *TestStringMap) {
+	xs.StrMap = append(xs.StrMap, v)
 }
 func (xs *Test) SetF32(v float32) {
 	xs.F32 = &v
@@ -2045,6 +2084,456 @@ func (xs *Test) SetF64(v float64) {
 func (xs *Test) SetF32Arr(v []float32) {
 	xs.F32Arr = v
 }
+func (xs *Test) AddF32Arr(v float32) {
+	xs.F32Arr = append(xs.F32Arr, v)
+}
 func (xs *Test) SetF64Arr(v []float64) {
 	xs.F64Arr = v
+}
+func (xs *Test) AddF64Arr(v float64) {
+	xs.F64Arr = append(xs.F64Arr, v)
+}
+func (xs *Test) Unmarshal(buf []byte) error {
+	for len(buf) > 0 {
+		number, _, n := protowire.ConsumeTag(buf)
+		if n < 0 {
+			return protowire.ParseError(n)
+		}
+		buf = buf[n:]
+		switch number {
+		case 1:
+			v, n := protowire.ConsumeVarint(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetId(int32(v))
+			break
+		case 2:
+			v, n := protowire.ConsumeVarint(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetU32(uint32(v))
+			break
+		case 3:
+			v, n := protowire.ConsumeVarint(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetI64(int64(v))
+			break
+		case 4:
+			v, n := protowire.ConsumeVarint(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetU64(uint64(v))
+			break
+		case 5:
+			v, n := protowire.ConsumeVarint(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetB(protowire.DecodeBool(v))
+			break
+		case 6:
+			v, n := protowire.ConsumeVarint(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetE(ColorType(v))
+			break
+		case 7:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetStr(syncdep.Bys2Str(v))
+			break
+		case 22:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			tmp := &Person{}
+			err := tmp.Unmarshal(v)
+			if err != nil {
+				return err
+			}
+			xs.SetObj(tmp)
+			break
+		case 8:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			for len(v) > 0 {
+				vv, nn := protowire.ConsumeVarint(v)
+				if nn < 0 {
+					return protowire.ParseError(n)
+				}
+				v = v[nn:]
+				xs.AddI32Arr(int32(vv))
+			}
+			break
+		case 9:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			for len(v) > 0 {
+				vv, nn := protowire.ConsumeVarint(v)
+				if nn < 0 {
+					return protowire.ParseError(n)
+				}
+				v = v[nn:]
+				xs.AddU32Arr(uint32(vv))
+			}
+			break
+		case 10:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			for len(v) > 0 {
+				vv, nn := protowire.ConsumeVarint(v)
+				if nn < 0 {
+					return protowire.ParseError(n)
+				}
+				v = v[nn:]
+				xs.AddI64Arr(int64(vv))
+			}
+			break
+		case 11:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			for len(v) > 0 {
+				vv, nn := protowire.ConsumeVarint(v)
+				if nn < 0 {
+					return protowire.ParseError(n)
+				}
+				v = v[nn:]
+				xs.AddU64Arr(uint64(vv))
+			}
+			break
+		case 12:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			for len(v) > 0 {
+				vv, nn := protowire.ConsumeVarint(v)
+				if nn < 0 {
+					return protowire.ParseError(n)
+				}
+				v = v[nn:]
+				xs.AddBoolArr(protowire.DecodeBool(vv))
+			}
+			break
+		case 13:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			for len(v) > 0 {
+				vv, nn := protowire.ConsumeVarint(v)
+				if nn < 0 {
+					return protowire.ParseError(n)
+				}
+				v = v[nn:]
+				xs.AddEnumArr(ColorType(vv))
+			}
+			break
+		case 14:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.AddStrArr(syncdep.Bys2Str(v))
+			break
+		case 15:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			tmp := &TestI32Map{}
+			err := tmp.Unmarshal(v)
+			if err != nil {
+				return err
+			}
+			xs.AddI32Map(tmp)
+			break
+		case 16:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			tmp := &TestU32Map{}
+			err := tmp.Unmarshal(v)
+			if err != nil {
+				return err
+			}
+			xs.AddU32Map(tmp)
+			break
+		case 17:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			tmp := &TestI64Map{}
+			err := tmp.Unmarshal(v)
+			if err != nil {
+				return err
+			}
+			xs.AddI64Map(tmp)
+			break
+		case 18:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			tmp := &TestU64Map{}
+			err := tmp.Unmarshal(v)
+			if err != nil {
+				return err
+			}
+			xs.AddU64Map(tmp)
+			break
+		case 19:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			tmp := &TestBoolMap{}
+			err := tmp.Unmarshal(v)
+			if err != nil {
+				return err
+			}
+			xs.AddBoolMap(tmp)
+			break
+		case 21:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			tmp := &TestStringMap{}
+			err := tmp.Unmarshal(v)
+			if err != nil {
+				return err
+			}
+			xs.AddStrMap(tmp)
+			break
+		case 23:
+			v, n := protowire.ConsumeFixed32(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetF32(math.Float32frombits(v))
+			break
+		case 24:
+			v, n := protowire.ConsumeFixed64(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			xs.SetF64(math.Float64frombits(v))
+			break
+		case 25:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			for len(v) > 0 {
+				vv, nn := protowire.ConsumeFixed32(v)
+				if nn < 0 {
+					return protowire.ParseError(n)
+				}
+				v = v[nn:]
+				xs.AddF32Arr(math.Float32frombits(vv))
+			}
+			break
+		case 26:
+			v, n := protowire.ConsumeBytes(buf)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			buf = buf[n:]
+			for len(v) > 0 {
+				vv, nn := protowire.ConsumeFixed64(v)
+				if nn < 0 {
+					return protowire.ParseError(n)
+				}
+				v = v[nn:]
+				xs.AddF64Arr(math.Float64frombits(vv))
+			}
+			break
+		}
+	}
+	return nil
+}
+func (xs *Test) Marshal() []byte {
+	var buf []byte
+	if xs.Id != nil {
+		buf = protowire.AppendTag(buf, 1, protowire.VarintType)
+		buf = protowire.AppendVarint(buf, uint64(*xs.Id))
+	}
+	if xs.U32 != nil {
+		buf = protowire.AppendTag(buf, 2, protowire.VarintType)
+		buf = protowire.AppendVarint(buf, uint64(*xs.U32))
+	}
+	if xs.I64 != nil {
+		buf = protowire.AppendTag(buf, 3, protowire.VarintType)
+		buf = protowire.AppendVarint(buf, uint64(*xs.I64))
+	}
+	if xs.U64 != nil {
+		buf = protowire.AppendTag(buf, 4, protowire.VarintType)
+		buf = protowire.AppendVarint(buf, uint64(*xs.U64))
+	}
+	if xs.B != nil {
+		buf = protowire.AppendTag(buf, 5, protowire.VarintType)
+		buf = protowire.AppendVarint(buf, protowire.EncodeBool(*xs.B))
+	}
+	if xs.E != nil {
+		buf = protowire.AppendTag(buf, 6, protowire.VarintType)
+		buf = protowire.AppendVarint(buf, uint64(*xs.E))
+	}
+	if xs.Str != nil {
+		buf = protowire.AppendTag(buf, 7, protowire.BytesType)
+		buf = protowire.AppendString(buf, *xs.Str)
+	}
+	if xs.Obj != nil {
+		bys := (*xs.Obj).Marshal()
+		buf = protowire.AppendTag(buf, 22, protowire.BytesType)
+		buf = protowire.AppendBytes(buf, bys)
+	}
+	if xs.I32Arr != nil {
+		for _, s := range xs.I32Arr {
+			buf = protowire.AppendTag(buf, 8, protowire.VarintType)
+			buf = protowire.AppendVarint(buf, uint64(s))
+		}
+	}
+	if xs.U32Arr != nil {
+		for _, s := range xs.U32Arr {
+			buf = protowire.AppendTag(buf, 9, protowire.VarintType)
+			buf = protowire.AppendVarint(buf, uint64(s))
+		}
+	}
+	if xs.I64Arr != nil {
+		for _, s := range xs.I64Arr {
+			buf = protowire.AppendTag(buf, 10, protowire.VarintType)
+			buf = protowire.AppendVarint(buf, uint64(s))
+		}
+	}
+	if xs.U64Arr != nil {
+		for _, s := range xs.U64Arr {
+			buf = protowire.AppendTag(buf, 11, protowire.VarintType)
+			buf = protowire.AppendVarint(buf, uint64(s))
+		}
+	}
+	if xs.BoolArr != nil {
+		for _, s := range xs.BoolArr {
+			buf = protowire.AppendTag(buf, 12, protowire.VarintType)
+			buf = protowire.AppendVarint(buf, protowire.EncodeBool(s))
+		}
+	}
+	if xs.EnumArr != nil {
+		for _, s := range xs.EnumArr {
+			buf = protowire.AppendTag(buf, 13, protowire.VarintType)
+			buf = protowire.AppendVarint(buf, uint64(s))
+		}
+	}
+	if xs.StrArr != nil {
+		for _, s := range xs.StrArr {
+			buf = protowire.AppendTag(buf, 14, protowire.BytesType)
+			buf = protowire.AppendString(buf, s)
+		}
+	}
+	if xs.I32Map != nil {
+		for _, s := range xs.I32Map {
+			bys := s.Marshal()
+			buf = protowire.AppendTag(buf, 15, protowire.BytesType)
+			buf = protowire.AppendBytes(buf, bys)
+		}
+	}
+	if xs.U32Map != nil {
+		for _, s := range xs.U32Map {
+			bys := s.Marshal()
+			buf = protowire.AppendTag(buf, 16, protowire.BytesType)
+			buf = protowire.AppendBytes(buf, bys)
+		}
+	}
+	if xs.I64Map != nil {
+		for _, s := range xs.I64Map {
+			bys := s.Marshal()
+			buf = protowire.AppendTag(buf, 17, protowire.BytesType)
+			buf = protowire.AppendBytes(buf, bys)
+		}
+	}
+	if xs.U64Map != nil {
+		for _, s := range xs.U64Map {
+			bys := s.Marshal()
+			buf = protowire.AppendTag(buf, 18, protowire.BytesType)
+			buf = protowire.AppendBytes(buf, bys)
+		}
+	}
+	if xs.BoolMap != nil {
+		for _, s := range xs.BoolMap {
+			bys := s.Marshal()
+			buf = protowire.AppendTag(buf, 19, protowire.BytesType)
+			buf = protowire.AppendBytes(buf, bys)
+		}
+	}
+	if xs.StrMap != nil {
+		for _, s := range xs.StrMap {
+			bys := s.Marshal()
+			buf = protowire.AppendTag(buf, 21, protowire.BytesType)
+			buf = protowire.AppendBytes(buf, bys)
+		}
+	}
+	if xs.F32 != nil {
+		buf = protowire.AppendTag(buf, 23, protowire.Fixed32Type)
+		buf = protowire.AppendFixed32(buf, math.Float32bits(*xs.F32))
+	}
+	if xs.F64 != nil {
+		buf = protowire.AppendTag(buf, 24, protowire.Fixed64Type)
+		buf = protowire.AppendFixed64(buf, math.Float64bits(*xs.F64))
+	}
+	if xs.F32Arr != nil {
+		for _, s := range xs.F32Arr {
+			buf = protowire.AppendTag(buf, 25, protowire.Fixed32Type)
+			buf = protowire.AppendFixed32(buf, math.Float32bits(s))
+		}
+	}
+	if xs.F64Arr != nil {
+		for _, s := range xs.F64Arr {
+			buf = protowire.AppendTag(buf, 26, protowire.Fixed64Type)
+			buf = protowire.AppendFixed64(buf, math.Float64bits(s))
+		}
+	}
+	return buf
 }
