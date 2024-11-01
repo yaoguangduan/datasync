@@ -50,7 +50,7 @@ func (x *IntroDetailSync) MergeDirtyFromPb(r *IntroDetail) {
 	}
 }
 func (x *IntroDetailSync) MergeDirtyFromBytes(buf []byte) *IntroDetailSync {
-	fds := syncdep.PreParseProtoBytes(buf)
+	fds := syncdep.PreUnmarshal(buf)
 	for _, rawF := range fds.Values {
 		switch rawF.Number {
 		case 1:

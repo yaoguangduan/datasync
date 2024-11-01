@@ -92,21 +92,21 @@ func FieldTypeToWireType(field gen.SyncFieldDef) protowire.Type {
 	return protowire.BytesType
 }
 
-type PreParsedProto struct {
-	Values  []ProtoRawField
+type PreParsedMessage struct {
+	Values  []PreParsedField
 	Numbers []int
 }
 
-func (p PreParsedProto) NumberSlice() []int {
+func (p PreParsedMessage) NumberSlice() []int {
 	if p.Numbers == nil {
-		p.Numbers = lo.Map[ProtoRawField, int](p.Values, func(item ProtoRawField, index int) int {
+		p.Numbers = lo.Map[PreParsedField, int](p.Values, func(item PreParsedField, index int) int {
 			return item.Number
 		})
 	}
 	return p.Numbers
 }
 
-func (p PreParsedProto) RawFieldByNumber(number int) *ProtoRawField {
+func (p PreParsedMessage) RawFieldByNumber(number int) *PreParsedField {
 	for _, f := range p.Values {
 		if f.Number == number {
 			return &f
@@ -115,13 +115,13 @@ func (p PreParsedProto) RawFieldByNumber(number int) *ProtoRawField {
 	return nil
 }
 
-type ProtoRawField struct {
+type PreParsedField struct {
 	Number int
 	Type   protowire.Type
 	Value  interface{}
 }
 
-func GetMapKey[T any](p *ProtoRawField) T {
+func GetMapKey[T any](p *PreParsedField) T {
 	var t T
 	switch any(t).(type) {
 	case int32:
@@ -142,7 +142,7 @@ func GetMapKey[T any](p *ProtoRawField) T {
 }
 
 // MustParseVarintArr int32 uint32 int64 uint64 bool enum
-func MustParseVarintArr[T interface{}](p *ProtoRawField) []T {
+func MustParseVarintArr[T interface{}](p *PreParsedField) []T {
 	var t T
 	buf := p.Value.([]byte)
 	ret := make([]T, 0)
@@ -214,8 +214,8 @@ const (
 
 */
 
-func PreParseProtoBytes(buf []byte) PreParsedProto {
-	fields := make([]ProtoRawField, 0)
+func PreUnmarshal(buf []byte) PreParsedMessage {
+	fields := make([]PreParsedField, 0)
 	for len(buf) > 0 {
 		num, typ, n := protowire.ConsumeTag(buf)
 		if n < 0 {
@@ -255,7 +255,7 @@ func PreParseProtoBytes(buf []byte) PreParsedProto {
 		default:
 			panic(fmt.Sprintf("unsupported type: %d", typ))
 		}
-		fields = append(fields, ProtoRawField{Number: int(num), Type: typ, Value: v})
+		fields = append(fields, PreParsedField{Number: int(num), Type: typ, Value: v})
 	}
-	return PreParsedProto{Values: fields}
+	return PreParsedMessage{Values: fields}
 }

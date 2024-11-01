@@ -184,7 +184,7 @@ func generateFuncMergeDirtyToBytes(fw *gen.FileWriter, msg gen.SyncMsgOrEnumDef)
 
 func generateFuncMergeDirtyFromBytes(fw *gen.FileWriter, msg gen.SyncMsgOrEnumDef) {
 	fw.PLF("func (x *%s) MergeDirtyFromBytes(buf []byte) *%s{", msg.SyncName, msg.SyncName)
-	fw.PLF("fds := syncdep.PreParseProtoBytes(buf)")
+	fw.PLF("fds := syncdep.PreUnmarshal(buf)")
 
 	var hasArrOrMap = lo.CountBy(msg.MsgFields, func(item gen.SyncFieldDef) bool {
 		return item.IsMap() || item.IsList()

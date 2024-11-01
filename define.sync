@@ -1,5 +1,5 @@
-def proto_out ./pb
 def go_out ./pbgen
+def proto_out ./pb
 
 enum VipLevel 
     Level1          0                   

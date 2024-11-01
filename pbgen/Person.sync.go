@@ -169,7 +169,7 @@ func (x *PersonSync) MergeDirtyFromPb(r *Person) {
 	}
 }
 func (x *PersonSync) MergeDirtyFromBytes(buf []byte) *PersonSync {
-	fds := syncdep.PreParseProtoBytes(buf)
+	fds := syncdep.PreUnmarshal(buf)
 	for _, rawF := range fds.Values {
 		switch rawF.Number {
 		case 1004:

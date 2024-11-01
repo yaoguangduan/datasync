@@ -50,7 +50,7 @@ func (x *TestI32MapSync) MergeDirtyFromPb(r *TestI32Map) {
 	}
 }
 func (x *TestI32MapSync) MergeDirtyFromBytes(buf []byte) *TestI32MapSync {
-	fds := syncdep.PreParseProtoBytes(buf)
+	fds := syncdep.PreUnmarshal(buf)
 	for _, rawF := range fds.Values {
 		switch rawF.Number {
 		case 1:

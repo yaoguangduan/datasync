@@ -50,7 +50,7 @@ func (x *TestBoolMapSync) MergeDirtyFromPb(r *TestBoolMap) {
 	}
 }
 func (x *TestBoolMapSync) MergeDirtyFromBytes(buf []byte) *TestBoolMapSync {
-	fds := syncdep.PreParseProtoBytes(buf)
+	fds := syncdep.PreUnmarshal(buf)
 	for _, rawF := range fds.Values {
 		switch rawF.Number {
 		case 1:

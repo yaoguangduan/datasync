@@ -50,7 +50,7 @@ func (x *PayRecordSync) MergeDirtyFromPb(r *PayRecord) {
 	}
 }
 func (x *PayRecordSync) MergeDirtyFromBytes(buf []byte) *PayRecordSync {
-	fds := syncdep.PreParseProtoBytes(buf)
+	fds := syncdep.PreUnmarshal(buf)
 	for _, rawF := range fds.Values {
 		switch rawF.Number {
 		case 1:

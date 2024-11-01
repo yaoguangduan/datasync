@@ -61,7 +61,7 @@ func (x *ActionInfoSync) MergeDirtyFromPb(r *ActionInfo) {
 	}
 }
 func (x *ActionInfoSync) MergeDirtyFromBytes(buf []byte) *ActionInfoSync {
-	fds := syncdep.PreParseProtoBytes(buf)
+	fds := syncdep.PreUnmarshal(buf)
 	for _, rawF := range fds.Values {
 		switch rawF.Number {
 		case 1:

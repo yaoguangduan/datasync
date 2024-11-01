@@ -506,7 +506,7 @@ func (x *TestSync) MergeDirtyFromPb(r *Test) {
 	}
 }
 func (x *TestSync) MergeDirtyFromBytes(buf []byte) *TestSync {
-	fds := syncdep.PreParseProtoBytes(buf)
+	fds := syncdep.PreUnmarshal(buf)
 	for _, rawF := range fds.Values {
 		switch rawF.Number {
 		case 2008:
